@@ -1,6 +1,7 @@
 import {
   ConflictException,
   Injectable,
+  OnModuleInit,
   UnauthorizedException,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
@@ -24,13 +25,31 @@ export type TelegramData = {
 };
 
 @Injectable()
-export class AuthService {
+export class AuthService implements OnModuleInit {
   constructor(
     @InjectRepository(User)
     private readonly users: Repository<User>,
     private readonly jwt: JwtService,
     private readonly config: ConfigService
   ) {}
+
+  // При первом запуске (в т.ч. в облаке) создаём админа, если его нет
+  async onModuleInit() {
+    const admins = await this.users.count({ where: { role: "admin" } });
+    if (admins === 0) {
+      const admin = this.users.create({
+        firstName: "Админ",
+        lastName: "",
+        email: "admin",
+        passwordHash: await bcrypt.hash("admin", 10),
+        role: "admin",
+        provider: "local",
+      });
+      await this.users.save(admin);
+      // eslint-disable-next-line no-console
+      console.log("✓ Админ құрылды: логин=admin, пароль=admin");
+    }
+  }
 
   private sign(user: User) {
     const payload = { sub: user.id, email: user.email, role: user.role };
