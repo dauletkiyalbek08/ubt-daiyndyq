@@ -6,13 +6,12 @@ import { useEffect, useState } from "react";
 import { ProgressChart } from "@/components/ProgressChart";
 import { useAuth } from "@/components/AuthProvider";
 import { api, PLAN_LABELS, type AchievementRow, type ResultRow, type UserStats } from "@/lib/api";
-import { subjects } from "@/lib/mock-data";
+import { subjectName } from "@/lib/ent";
 
 type Analytics = {
   weekly: { label: string; value: number }[];
   subjects: { subjectId: string; avg: number; count: number }[];
 };
-const subjectName = (id: string) => subjects.find((s) => s.id === id)?.name ?? id;
 
 export default function DashboardPage() {
   const { user, loading } = useAuth();

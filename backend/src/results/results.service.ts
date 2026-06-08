@@ -135,6 +135,7 @@ export class ResultsService {
       score,
       total: maxScore, // храним максимум баллов как «total»
       isTrial: test.isTrial,
+      bySubject, // разбивка по предметам — для анализа в кабинете
     });
     await this.results.save(result);
 
@@ -180,15 +181,26 @@ export class ResultsService {
       }))
       .slice(-8);
 
-    // По предметам: средний процент и количество
+    // По предметам: средний процент и количество.
+    // Для пробного ҰБТ берём детальную разбивку bySubject (история/матем/физика…),
+    // для старых/обычных результатов — общий subjectId всего теста.
     const bySubject = new Map<string, { sum: number; count: number }>();
     for (const r of rows) {
-      if (!r.subjectId) continue;
-      const pct = (r.score / Math.max(1, r.total)) * 100;
-      const e = bySubject.get(r.subjectId) ?? { sum: 0, count: 0 };
-      e.sum += pct;
-      e.count++;
-      bySubject.set(r.subjectId, e);
+      if (Array.isArray(r.bySubject) && r.bySubject.length > 0) {
+        for (const s of r.bySubject) {
+          const pct = (s.score / Math.max(1, s.max)) * 100;
+          const e = bySubject.get(s.subjectId) ?? { sum: 0, count: 0 };
+          e.sum += pct;
+          e.count++;
+          bySubject.set(s.subjectId, e);
+        }
+      } else if (r.subjectId) {
+        const pct = (r.score / Math.max(1, r.total)) * 100;
+        const e = bySubject.get(r.subjectId) ?? { sum: 0, count: 0 };
+        e.sum += pct;
+        e.count++;
+        bySubject.set(r.subjectId, e);
+      }
     }
     const subjects = Array.from(bySubject.entries())
       .map(([subjectId, e]) => ({

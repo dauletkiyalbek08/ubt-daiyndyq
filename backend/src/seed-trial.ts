@@ -10,16 +10,28 @@ import { Notification } from "./entities/notification.entity";
 
 dotenv.config();
 
-const AppDataSource = new DataSource({
-  type: "postgres",
-  host: process.env.DB_HOST,
-  port: Number(process.env.DB_PORT),
-  username: process.env.DB_USER,
-  password: String(process.env.DB_PASSWORD),
-  database: process.env.DB_NAME,
-  entities: [User, Test, Question, Result, Subscription, Notification],
-  synchronize: true,
-});
+const AppDataSource = new DataSource(
+  process.env.DATABASE_URL
+    ? {
+        type: "postgres",
+        url: process.env.DATABASE_URL,
+        entities: [User, Test, Question, Result, Subscription, Notification],
+        synchronize: true,
+        ssl: process.env.DATABASE_URL.includes("railway.internal")
+          ? false
+          : { rejectUnauthorized: false },
+      }
+    : {
+        type: "postgres",
+        host: process.env.DB_HOST,
+        port: Number(process.env.DB_PORT),
+        username: process.env.DB_USER,
+        password: String(process.env.DB_PASSWORD),
+        database: process.env.DB_NAME,
+        entities: [User, Test, Question, Result, Subscription, Notification],
+        synchronize: true,
+      }
+);
 
 type Q = {
   subject: string;

@@ -30,6 +30,12 @@ export class Result {
   @Column({ type: "varchar", nullable: true })
   subjectId: string | null;
 
+  // Разбивка результата по предметам (для пробного ҰБТ — анализ в кабинете)
+  @Column({ type: "jsonb", nullable: true })
+  bySubject:
+    | { subjectId: string; score: number; max: number; correct: number; total: number }[]
+    | null;
+
   @Column({ type: "int" })
   score: number;
 
