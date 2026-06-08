@@ -32,12 +32,14 @@ import { PlansModule } from "./plans/plans.module";
         const entities = [User, Test, Question, Result, Subscription, Notification, Plan];
         // В облаке (Railway/Render) база подключается через DATABASE_URL + SSL.
         if (url) {
+          // Railway internal база — без SSL; внешние (Render и т.п.) — с SSL
+          const needSsl = !url.includes("railway.internal") && !url.includes("localhost");
           return {
             type: "postgres",
             url,
             entities,
             synchronize: true,
-            ssl: { rejectUnauthorized: false },
+            ssl: needSsl ? { rejectUnauthorized: false } : false,
           };
         }
         // Локально — отдельные переменные
