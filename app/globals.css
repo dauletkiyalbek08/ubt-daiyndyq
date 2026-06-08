@@ -1,0 +1,244 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: "Inter", "Segoe UI", system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  @apply bg-surface text-slate-800 antialiased;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+/* Кастомный скроллбар */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+  border: 2px solid #f8fafc;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Выделение текста */
+::selection {
+  background: rgba(37, 99, 235, 0.18);
+  color: #1e293b;
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .btn-primary {
+    @apply relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-xl bg-brand px-6 py-3 text-base font-semibold text-white shadow-card transition-all duration-200 hover:bg-brand-dark hover:shadow-glow active:scale-[0.97] focus:outline-none focus:ring-4 focus:ring-brand/30;
+  }
+
+  /* Белая кнопка на цветном (бренд) фоне — остаётся белой и в тёмной теме */
+  .btn-light {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-white px-8 py-3.5 font-semibold text-brand shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3 text-base font-semibold text-slate-700 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand hover:text-brand hover:shadow-card active:translate-y-0 active:scale-[0.98];
+  }
+
+  .card {
+    @apply rounded-2xl border border-slate-100 bg-white p-6 shadow-card;
+  }
+
+  .card-interactive {
+    @apply card transition-all duration-300 hover:-translate-y-1.5 hover:border-brand/30 hover:shadow-card-hover;
+  }
+
+  .input-field {
+    @apply w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-800 outline-none transition-all duration-200 placeholder:text-slate-400 hover:border-slate-300 focus:border-brand focus:ring-4 focus:ring-brand/15;
+  }
+
+  .badge {
+    @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-medium;
+  }
+
+  /* Градиентный текст для акцентных слов */
+  .text-gradient {
+    @apply bg-gradient-to-r from-brand to-brand-light bg-clip-text text-transparent;
+  }
+
+  /* Стеклянный эффект (хедер) */
+  .glass {
+    @apply border border-white/40 bg-white/70 backdrop-blur-lg;
+  }
+}
+
+@layer utilities {
+  /* Стартовое состояние для появления при скролле (Reveal) */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
+  }
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Анимированный блик по поверхности */
+  .shimmer-overlay {
+    position: relative;
+    overflow: hidden;
+  }
+  .shimmer-overlay::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.35),
+      transparent
+    );
+    animation: shimmer 2.5s infinite;
+  }
+}
+
+/* ================== НОЧНОЙ РЕЖИМ (тёмная тема) ================== */
+/* Глубокий тёмно-синий фон; карточки заметно светлее с рамками. */
+.dark body {
+  background-color: #080d1a;
+  color: #e5eaf2;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-color: #080d1a;
+}
+
+/* Компоненты (используют @apply, поэтому переопределяем явно) */
+.dark .card {
+  background-color: #131d33;
+  border-color: #25324f;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+.dark .card-interactive {
+  background-color: #131d33;
+  border-color: #25324f;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+.dark .card-interactive:hover {
+  border-color: rgba(59, 130, 246, 0.45);
+  box-shadow: 0 8px 30px rgba(37, 99, 235, 0.22);
+}
+.dark .input-field {
+  background-color: #0d1526;
+  border-color: #25324f;
+  color: #e5eaf2;
+}
+.dark .input-field::placeholder {
+  color: #64748b;
+}
+.dark .btn-secondary {
+  background-color: #131d33;
+  border-color: #25324f;
+  color: #cbd5e1;
+}
+.dark .glass {
+  background-color: rgba(19, 29, 51, 0.72);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Частые утилиты, заданные прямо в разметке */
+.dark .bg-white { background-color: #131d33 !important; }
+.dark .bg-white\/40,
+.dark .bg-white\/70,
+.dark .bg-white\/80 { background-color: rgba(19, 29, 51, 0.82) !important; }
+.dark .bg-surface { background-color: #0c1322 !important; }
+.dark .bg-slate-50 { background-color: #0d1526 !important; }
+.dark .bg-slate-100 { background-color: #25324f !important; }
+
+/* Градиентные стоп-классы (иначе градиент уходит в белый/светлый surface) */
+.dark .to-surface { --tw-gradient-to: #080d1a !important; }
+.dark .from-surface { --tw-gradient-from: #080d1a !important; }
+.dark .via-surface { --tw-gradient-via: #080d1a !important; }
+.dark .to-white { --tw-gradient-to: #131d33 !important; }
+.dark .from-white { --tw-gradient-from: #131d33 !important; }
+
+/* Hover-варианты фонов (иначе при наведении фон становится светлым) */
+.dark .hover\:bg-slate-50:hover { background-color: #1a2540 !important; }
+.dark .hover\:bg-slate-100:hover { background-color: #25324f !important; }
+.dark .hover\:bg-slate-200:hover { background-color: #2d3c5c !important; }
+.dark .hover\:bg-surface:hover { background-color: #0c1322 !important; }
+.dark .hover\:bg-white:hover { background-color: #131d33 !important; }
+
+.dark .text-slate-900 { color: #f3f6fb !important; }
+.dark .text-slate-800 { color: #e5eaf2 !important; }
+.dark .text-slate-700 { color: #cbd5e1 !important; }
+.dark .text-slate-600 { color: #9aa7bd !important; }
+.dark .text-slate-500 { color: #94a3b8 !important; }
+.dark .text-slate-400 { color: #64748b !important; }
+
+.dark .border-slate-100 { border-color: #25324f !important; }
+.dark .border-slate-200 { border-color: #25324f !important; }
+.dark .divide-slate-100 > * + * { border-color: #25324f !important; }
+.dark .divide-slate-50 > * + * { border-color: #1a2540 !important; }
+
+/* Нативные select / textarea */
+.dark select,
+.dark textarea {
+  background-color: #0d1526;
+  color: #e5eaf2;
+  border-color: #25324f;
+}
+.dark option { background-color: #0d1526; color: #e5eaf2; }
+
+/* Цветные «плашки» — затемняем фон, чтобы вписывались в тёмную тему */
+.dark .bg-emerald-50 { background-color: rgba(16, 185, 129, 0.14) !important; }
+.dark .bg-rose-50 { background-color: rgba(244, 63, 94, 0.14) !important; }
+.dark .bg-amber-50 { background-color: rgba(245, 158, 11, 0.14) !important; }
+.dark .bg-sky-50 { background-color: rgba(14, 165, 233, 0.14) !important; }
+.dark .bg-blue-50 { background-color: rgba(59, 130, 246, 0.14) !important; }
+.dark .bg-violet-50 { background-color: rgba(139, 92, 246, 0.14) !important; }
+.dark .bg-teal-50 { background-color: rgba(20, 184, 166, 0.14) !important; }
+.dark .bg-cyan-50 { background-color: rgba(6, 182, 212, 0.14) !important; }
+.dark .bg-indigo-50 { background-color: rgba(99, 102, 241, 0.14) !important; }
+.dark .bg-amber-100 { background-color: rgba(245, 158, 11, 0.18) !important; }
+
+/* Тёмный текст на цветных плашках — делаем светлее для контраста */
+.dark .text-amber-800,
+.dark .text-amber-700 { color: #fbbf24 !important; }
+.dark .text-emerald-700 { color: #34d399 !important; }
+.dark .text-rose-700 { color: #fb7185 !important; }
+.dark .text-blue-700 { color: #60a5fa !important; }
+.dark .text-sky-700,
+.dark .text-sky-600 { color: #38bdf8 !important; }
+
+/* Уважаем системную настройку «уменьшить движение» */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}

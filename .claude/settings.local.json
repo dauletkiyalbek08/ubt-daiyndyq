@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell($paths = @\\(\"$env:ProgramFiles\\\\nodejs\\\\node.exe\",\"${env:ProgramFiles\\(x86\\)}\\\\nodejs\\\\node.exe\",\"$env:LOCALAPPDATA\\\\Programs\\\\nodejs\\\\node.exe\"\\); foreach\\($p in $paths\\){ if\\(Test-Path $p\\){ \"FOUND: $p\" } }; \"--- winget ---\"; \\(Get-Command winget -ErrorAction SilentlyContinue\\).Source)",
+      "PowerShell($env:Path = [System.Environment]::GetEnvironmentVariable\\(\"Path\",\"Machine\"\\) + \";\" + [System.Environment]::GetEnvironmentVariable\\(\"Path\",\"User\"\\); Set-Location \"c:\\\\Users\\\\User\\\\Documents\\\\Projects\\\\Website\\\\test\\\\backend\"; npm run start:prod)"
+    ]
+  }
+}

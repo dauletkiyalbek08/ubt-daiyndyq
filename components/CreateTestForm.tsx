@@ -1,0 +1,306 @@
+"use client";
+
+import { useState } from "react";
+import { api, type ApiTestFull } from "@/lib/api";
+import { subjects } from "@/lib/mock-data";
+import { ALL_SUBJECTS } from "@/lib/ent";
+
+type QType = "single" | "context" | "matching" | "multiple";
+
+type QForm = {
+  type: QType;
+  text: string;
+  context: string;
+  options: string[];
+  correctIndex: number;
+  correctIndexes: number[];
+  matchLeft: string[];
+  matchRight: string[];
+  points: number;
+  explanation: string;
+  imageUrl: string;
+  subject: string;
+  uploading?: boolean;
+};
+
+const emptyQuestion = (): QForm => ({
+  type: "single",
+  text: "",
+  context: "",
+  options: ["", "", "", ""],
+  correctIndex: 0,
+  correctIndexes: [],
+  matchLeft: ["", ""],
+  matchRight: ["", ""],
+  points: 1,
+  explanation: "",
+  imageUrl: "",
+  subject: "",
+});
+
+export function CreateTestForm({
+  editTest,
+  onSaved,
+}: {
+  editTest?: ApiTestFull;
+  onSaved: () => void;
+}) {
+  const isEdit = !!editTest;
+
+  const [title, setTitle] = useState(editTest?.title ?? "");
+  const [subjectId, setSubjectId] = useState(editTest?.subjectId ?? subjects[0].id);
+  const [difficulty, setDifficulty] = useState(editTest?.difficulty ?? "Орташа");
+  const [year, setYear] = useState(editTest?.year ?? 2024);
+  const [topic, setTopic] = useState(editTest?.topic ?? "");
+  const [durationMin, setDurationMin] = useState(editTest?.durationMin ?? 30);
+  const [isTrial, setIsTrial] = useState(editTest?.isTrial ?? false);
+  const [weekLabel, setWeekLabel] = useState(editTest?.weekLabel ?? "");
+  const [publishAt, setPublishAt] = useState("");
+  const [questions, setQuestions] = useState<QForm[]>(
+    editTest && editTest.questions.length > 0
+      ? editTest.questions.map((q) => ({
+          type: (q.type as QType) ?? "single",
+          text: q.text,
+          context: q.context ?? "",
+          options: q.options?.length ? q.options : ["", "", "", ""],
+          correctIndex: q.correctIndex ?? 0,
+          correctIndexes: q.correctIndexes ?? [],
+          matchLeft: q.matchLeft ?? ["", ""],
+          matchRight: q.matchRight ?? ["", ""],
+          points: q.points ?? 1,
+          explanation: q.explanation ?? "",
+          imageUrl: q.imageUrl ?? "",
+          subject: q.subject ?? "",
+        }))
+      : [emptyQuestion()]
+  );
+  const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const upd = (i: number, patch: Partial<QForm>) =>
+    setQuestions((qs) => qs.map((q, idx) => (idx === i ? { ...q, ...patch } : q)));
+
+  async function handleImage(qi: number, file?: File) {
+    if (!file) return;
+    upd(qi, { uploading: true });
+    try {
+      const { url } = await api.uploadImage(file);
+      upd(qi, { imageUrl: url, uploading: false });
+    } catch (err) {
+      upd(qi, { uploading: false });
+      setError(err instanceof Error ? err.message : "Сурет жүктелмеді");
+    }
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    for (const q of questions) {
+      if (!q.text.trim()) return setError("Сұрақ мәтінін толтырыңыз");
+      if (q.type === "matching") {
+        if (q.matchLeft.some((x) => !x.trim()) || q.matchRight.some((x) => !x.trim()))
+          return setError("Сәйкестендіру жұптарын толтырыңыз");
+      } else if (q.type === "multiple") {
+        if (q.options.filter((o) => o.trim()).length < 2) return setError("Кемінде 2 нұсқа қажет");
+        if (q.correctIndexes.length < 1) return setError("Дұрыс жауап(тар)ды белгілеңіз");
+      } else {
+        if (q.options.filter((o) => o.trim()).length < 2) return setError("Кемінде 2 нұсқа қажет");
+      }
+    }
+
+    setSaving(true);
+    const body = {
+      title,
+      subjectId,
+      difficulty,
+      year: Number(year),
+      topic,
+      durationMin: Number(durationMin),
+      isTrial,
+      weekLabel: isTrial ? weekLabel || undefined : undefined,
+      publishAt: !isEdit && publishAt ? new Date(publishAt).toISOString() : undefined,
+      questions: questions.map((q) => {
+        const base: any = {
+          type: q.type,
+          text: q.text,
+          explanation: q.explanation || undefined,
+          imageUrl: q.imageUrl || undefined,
+          subject: q.subject || undefined,
+          context: q.type === "context" ? q.context || undefined : undefined,
+        };
+        if (q.type === "matching") {
+          return { ...base, matchLeft: q.matchLeft, matchRight: q.matchRight, points: 1, options: [] };
+        }
+        if (q.type === "multiple") {
+          return { ...base, options: q.options.filter((o) => o.trim()), correctIndexes: q.correctIndexes, points: q.points || 3 };
+        }
+        return { ...base, options: q.options.filter((o) => o.trim()), correctIndex: q.correctIndex, points: 1 };
+      }),
+    };
+    try {
+      if (isEdit) await api.updateTest(editTest!.id, body);
+      else await api.createTest(body);
+      onSaved();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Сақтау қатесі");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="card space-y-5">
+      <h3 className="text-lg font-bold text-slate-900">{isEdit ? "Тестті өзгерту" : "Жаңа тест құру"}</h3>
+      {error && <div className="rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-700">{error}</div>}
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="md:col-span-2">
+          <label className="mb-1.5 block text-sm font-medium text-slate-700">Атауы</label>
+          <input value={title} onChange={(e) => setTitle(e.target.value)} required className="input-field" />
+        </div>
+        <div>
+          <label className="mb-1.5 block text-sm font-medium text-slate-700">Пән</label>
+          <select value={subjectId} onChange={(e) => setSubjectId(e.target.value)} className="input-field">
+            {subjects.map((s) => (<option key={s.id} value={s.id}>{s.name}</option>))}
+          </select>
+        </div>
+        <div>
+          <label className="mb-1.5 block text-sm font-medium text-slate-700">Тақырып</label>
+          <input value={topic} onChange={(e) => setTopic(e.target.value)} required className="input-field" />
+        </div>
+        <div>
+          <label className="mb-1.5 block text-sm font-medium text-slate-700">Күрделілік</label>
+          <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)} className="input-field">
+            <option>Жеңіл</option><option>Орташа</option><option>Қиын</option>
+          </select>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-slate-700">Жыл</label>
+            <input type="number" value={year} onChange={(e) => setYear(Number(e.target.value))} className="input-field" />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-slate-700">Уақыт (мин)</label>
+            <input type="number" value={durationMin} onChange={(e) => setDurationMin(Number(e.target.value))} className="input-field" />
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-xl border border-slate-200 bg-surface p-4">
+        <label className="flex cursor-pointer items-start gap-3">
+          <input type="checkbox" checked={isTrial} onChange={(e) => setIsTrial(e.target.checked)} className="mt-0.5 h-5 w-5 rounded border-slate-300 text-brand" />
+          <span>
+            <span className="font-medium text-slate-900">Бұл — Пробное ҰБТ (апталық)</span>
+            <span className="block text-sm text-slate-500">Премиум үшін, рейтингке кіреді</span>
+          </span>
+        </label>
+        {isTrial && (
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            <input value={weekLabel} onChange={(e) => setWeekLabel(e.target.value)} className="input-field" placeholder="Апта: 2026-W23" />
+            {!isEdit && <input type="datetime-local" value={publishAt} onChange={(e) => setPublishAt(e.target.value)} className="input-field" />}
+          </div>
+        )}
+      </div>
+
+      {/* Вопросы */}
+      <div className="space-y-4">
+        <h4 className="font-semibold text-slate-900">Сұрақтар</h4>
+        {questions.map((q, qi) => (
+          <div key={qi} className="rounded-xl border border-slate-200 p-4">
+            <div className="mb-3 flex items-center justify-between gap-2">
+              <span className="text-sm font-medium text-slate-700">Сұрақ {qi + 1}</span>
+              <div className="flex items-center gap-2">
+                <select value={q.type} onChange={(e) => upd(qi, { type: e.target.value as QType, points: e.target.value === "multiple" ? 3 : 1 })}
+                  className="rounded-lg border border-slate-200 px-2 py-1 text-sm">
+                  <option value="single">Бір жауап</option>
+                  <option value="context">Мәтін бойынша</option>
+                  <option value="matching">Сәйкестендіру</option>
+                  <option value="multiple">Бірнеше жауап</option>
+                </select>
+                {questions.length > 1 && (
+                  <button type="button" onClick={() => setQuestions((qs) => qs.filter((_, i) => i !== qi))} className="text-sm text-rose-600 hover:underline">Жою</button>
+                )}
+              </div>
+            </div>
+
+            {isTrial && (
+              <select value={q.subject} onChange={(e) => upd(qi, { subject: e.target.value })} className="input-field mb-3">
+                <option value="">— пәнді таңдаңыз —</option>
+                {ALL_SUBJECTS.map((s) => (<option key={s.id} value={s.id}>{s.name}</option>))}
+              </select>
+            )}
+
+            {q.type === "context" && (
+              <textarea value={q.context} onChange={(e) => upd(qi, { context: e.target.value })} className="input-field mb-3" rows={3} placeholder="Мәтін / кесте / график сипаттамасы" />
+            )}
+
+            <input value={q.text} onChange={(e) => upd(qi, { text: e.target.value })} className="input-field mb-3" placeholder="Сұрақ мәтіні" />
+
+            {/* Картинка */}
+            <div className="mb-3">
+              {q.imageUrl ? (
+                <div className="relative inline-block">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={q.imageUrl} alt="" className="max-h-40 rounded-lg border border-slate-200" />
+                  <button type="button" onClick={() => upd(qi, { imageUrl: "" })} className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-rose-500 text-xs text-white">✕</button>
+                </div>
+              ) : (
+                <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-slate-300 px-4 py-2 text-sm text-slate-600 hover:border-brand">
+                  {q.uploading ? "Жүктелуде..." : "🖼️ Сурет"}
+                  <input type="file" accept="image/*" className="hidden" disabled={q.uploading} onChange={(e) => handleImage(qi, e.target.files?.[0])} />
+                </label>
+              )}
+            </div>
+
+            {/* Варианты по типу */}
+            {q.type === "matching" ? (
+              <div className="space-y-2">
+                <p className="text-xs text-slate-400">Сол ↔ оң баған (дұрыс жұптарды жазыңыз)</p>
+                {q.matchLeft.map((l, pi) => (
+                  <div key={pi} className="flex items-center gap-2">
+                    <input value={l} onChange={(e) => upd(qi, { matchLeft: q.matchLeft.map((x, j) => (j === pi ? e.target.value : x)) })} className="input-field" placeholder={`Сол ${pi + 1}`} />
+                    <span className="text-slate-400">↔</span>
+                    <input value={q.matchRight[pi] ?? ""} onChange={(e) => upd(qi, { matchRight: q.matchRight.map((x, j) => (j === pi ? e.target.value : x)) })} className="input-field" placeholder={`Оң ${pi + 1}`} />
+                    {q.matchLeft.length > 2 && (
+                      <button type="button" onClick={() => upd(qi, { matchLeft: q.matchLeft.filter((_, j) => j !== pi), matchRight: q.matchRight.filter((_, j) => j !== pi) })} className="text-rose-600">✕</button>
+                    )}
+                  </div>
+                ))}
+                <button type="button" onClick={() => upd(qi, { matchLeft: [...q.matchLeft, ""], matchRight: [...q.matchRight, ""] })} className="text-sm text-brand hover:underline">+ жұп қосу</button>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {q.options.map((opt, oi) => (
+                  <div key={oi} className="flex items-center gap-2">
+                    {q.type === "multiple" ? (
+                      <input type="checkbox" checked={q.correctIndexes.includes(oi)}
+                        onChange={() => upd(qi, { correctIndexes: q.correctIndexes.includes(oi) ? q.correctIndexes.filter((x) => x !== oi) : [...q.correctIndexes, oi] })}
+                        className="h-4 w-4" title="Дұрыс жауап" />
+                    ) : (
+                      <input type="radio" name={`c-${qi}`} checked={q.correctIndex === oi} onChange={() => upd(qi, { correctIndex: oi })} className="h-4 w-4" title="Дұрыс жауап" />
+                    )}
+                    <input value={opt} onChange={(e) => upd(qi, { options: q.options.map((o, j) => (j === oi ? e.target.value : o)) })} className="input-field" placeholder={`${String.fromCharCode(65 + oi)} нұсқасы`} />
+                    {q.options.length > 2 && (
+                      <button type="button" onClick={() => upd(qi, { options: q.options.filter((_, j) => j !== oi) })} className="text-rose-600">✕</button>
+                    )}
+                  </div>
+                ))}
+                {q.type === "multiple" && q.options.length < 6 && (
+                  <button type="button" onClick={() => upd(qi, { options: [...q.options, ""] })} className="text-sm text-brand hover:underline">+ нұсқа қосу</button>
+                )}
+                <p className="text-xs text-slate-400">{q.type === "multiple" ? "☑ Дұрыс жауаптарды белгілеңіз" : "◉ Дұрыс жауапты белгілеңіз"}</p>
+              </div>
+            )}
+
+            <input value={q.explanation} onChange={(e) => upd(qi, { explanation: e.target.value })} className="input-field mt-3" placeholder="Түсіндірме (міндетті емес)" />
+          </div>
+        ))}
+        <button type="button" onClick={() => setQuestions((qs) => [...qs, emptyQuestion()])} className="btn-secondary w-full text-sm">+ Сұрақ қосу</button>
+      </div>
+
+      <button type="submit" disabled={saving} className="btn-primary w-full disabled:opacity-60">
+        {saving ? "Сақталуда..." : isEdit ? "Өзгерістерді сақтау" : "Тестті сақтау"}
+      </button>
+    </form>
+  );
+}
