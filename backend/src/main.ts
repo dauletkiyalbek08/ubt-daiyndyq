@@ -10,7 +10,9 @@ async function bootstrap() {
   const config = app.get(ConfigService);
 
   // Раздача загруженных картинок: http://localhost:4000/uploads/...
-  app.useStaticAssets(join(process.cwd(), "uploads"), { prefix: "/uploads/" });
+  // В облаке берём ту же папку, что и для записи (постоянный диск Railway).
+  const uploadDir = process.env.UPLOAD_DIR ?? join(process.cwd(), "uploads");
+  app.useStaticAssets(uploadDir, { prefix: "/uploads/" });
 
   // Глобальная валидация входящих данных (DTO)
   app.useGlobalPipes(

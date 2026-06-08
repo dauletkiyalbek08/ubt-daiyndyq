@@ -12,7 +12,9 @@ import { extname } from "path";
 import { existsSync, mkdirSync } from "fs";
 import { AdminGuard, AdminOnly, JwtAuthGuard } from "../auth/jwt-auth.guard";
 
-const UPLOAD_DIR = "./uploads";
+// Папка для картинок. В облаке (Railway) указываем постоянный диск через
+// переменную UPLOAD_DIR (напр. /data/uploads), чтобы файлы не стирались при редеплое.
+const UPLOAD_DIR = process.env.UPLOAD_DIR ?? "./uploads";
 if (!existsSync(UPLOAD_DIR)) mkdirSync(UPLOAD_DIR, { recursive: true });
 
 const ALLOWED = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"];
