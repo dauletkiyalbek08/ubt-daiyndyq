@@ -195,7 +195,9 @@ export type LeaderboardRow = {
   rank: number;
   userId: string;
   name: string;
-  score: number;
+  score: number; // баллы (как в ҰБТ)
+  total: number; // максимум баллов
+  percent: number;
   date: string;
 };
 

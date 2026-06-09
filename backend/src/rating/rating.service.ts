@@ -9,7 +9,9 @@ export type LeaderboardRow = {
   rank: number;
   userId: string;
   name: string;
-  score: number; // лучший результат в процентах
+  score: number; // лучший результат — баллы (как в ҰБТ, из 140)
+  total: number; // максимум баллов
+  percent: number; // тот же результат в процентах
   date: string;
 };
 
@@ -36,25 +38,30 @@ export class RatingService {
       order: { createdAt: "DESC" },
     });
 
-    // группируем по пользователю, берём лучший процент
+    // группируем по пользователю, берём лучший результат по БАЛЛАМ
     const best = new Map<string, LeaderboardRow>();
     for (const r of rows) {
       if (!r.user) continue;
-      const percent = Math.round((r.score / Math.max(1, r.total)) * 100);
+      const points = r.score;
       const name = `${r.user.firstName} ${r.user.lastName ?? ""}`.trim();
       const existing = best.get(r.userId);
-      if (!existing || percent > existing.score) {
+      if (!existing || points > existing.score) {
         best.set(r.userId, {
           rank: 0,
           userId: r.userId,
           name,
-          score: percent,
+          score: points,
+          total: r.total,
+          percent: Math.round((points / Math.max(1, r.total)) * 100),
           date: r.createdAt.toISOString(),
         });
       }
     }
 
-    const list = Array.from(best.values()).sort((a, b) => b.score - a.score);
+    // сортируем по баллам, при равенстве — по проценту
+    const list = Array.from(best.values()).sort(
+      (a, b) => b.score - a.score || b.percent - a.percent
+    );
     list.forEach((row, i) => (row.rank = i + 1));
     return list.slice(0, 100);
   }
