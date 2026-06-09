@@ -7,7 +7,7 @@ import { ProgressChart } from "@/components/ProgressChart";
 import { useAuth } from "@/components/AuthProvider";
 import { api, PLAN_LABELS, type AchievementRow, type ResultRow, type UserStats } from "@/lib/api";
 import { subjectName } from "@/lib/ent";
-import { FileCheck2, BarChart3, Trophy, Target } from "lucide-react";
+import { FileCheck2, BarChart3, Trophy, Target, TrendingUp, TrendingDown } from "lucide-react";
 import { AchievementIcon } from "@/components/AchievementIcon";
 
 type Analytics = {
@@ -120,7 +120,7 @@ export default function DashboardPage() {
           ) : (
             <>
               <div className="mb-4">
-                <p className="mb-2 text-sm font-medium text-emerald-600">💪 Күшті жақтар</p>
+                <p className="mb-2 flex items-center gap-1.5 text-sm font-medium text-emerald-600"><TrendingUp className="h-4 w-4" /> Күшті жақтар</p>
                 <div className="flex flex-wrap gap-2">
                   {strengths.length > 0 ? (
                     strengths.map((s) => (
@@ -134,7 +134,7 @@ export default function DashboardPage() {
                 </div>
               </div>
               <div>
-                <p className="mb-2 text-sm font-medium text-rose-600">📉 Әлсіз тақырыптар</p>
+                <p className="mb-2 flex items-center gap-1.5 text-sm font-medium text-rose-600"><TrendingDown className="h-4 w-4" /> Әлсіз тақырыптар</p>
                 <div className="flex flex-wrap gap-2">
                   {weaknesses.length > 0 ? (
                     weaknesses.map((s) => (

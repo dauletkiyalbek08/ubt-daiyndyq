@@ -6,6 +6,7 @@ import { TestRunner } from "@/components/TestRunner";
 import { useAuth } from "@/components/AuthProvider";
 import { api, ApiError, type ApiTestFull } from "@/lib/api";
 import { SubjectIcon } from "@/components/SubjectIcon";
+import { Lock, Crown, Palette, Clock } from "lucide-react";
 import {
   ENT_MANDATORY,
   ENT_MANDATORY_IDS,
@@ -70,7 +71,7 @@ export default function TrialTakePage({ params }: { params: { id: string } }) {
     return (
       <div className="container-page max-w-md py-20 text-center">
         <div className="card">
-          <div className="text-4xl">🔒</div>
+          <Lock className="mx-auto h-10 w-10 text-brand" />
           <h1 className="mt-3 text-xl font-bold text-slate-900">Кіру қажет</h1>
           <div className="mt-6 flex justify-center gap-3">
             <Link href="/login" className="btn-primary">Кіру</Link>
@@ -85,7 +86,7 @@ export default function TrialTakePage({ params }: { params: { id: string } }) {
     return (
       <div className="container-page max-w-md py-20 text-center">
         <div className="card">
-          <div className="text-4xl">⭐</div>
+          <Crown className="mx-auto h-10 w-10 text-amber-500" />
           <h1 className="mt-3 text-xl font-bold text-slate-900">Premium қажет</h1>
           <p className="mt-2 text-sm text-slate-500">
             Пробное ҰБТ тек Премиум тарифінде қолжетімді.
@@ -163,7 +164,7 @@ export default function TrialTakePage({ params }: { params: { id: string } }) {
                 </span>
                 <span className="flex-1 text-slate-800">{s.name}</span>
                 {s.subjects.includes("creative") ? (
-                  <span className="text-xs text-amber-600">🎨</span>
+                  <Palette className="h-4 w-4 shrink-0 text-amber-600" />
                 ) : (
                   <span className="hidden text-xs text-slate-400 sm:inline">
                     {subjectName(s.subjects[0])} · {subjectName(s.subjects[1])}
@@ -202,8 +203,8 @@ export default function TrialTakePage({ params }: { params: { id: string } }) {
         </div>
       )}
 
-      <div className="mt-6 rounded-2xl bg-amber-50 p-4 text-sm text-amber-800">
-        ⏱ Тест басталғаннан кейін уақыт санағы жүреді ({trial.durationMin} мин).
+      <div className="mt-6 flex items-center gap-2 rounded-2xl bg-amber-50 p-4 text-sm text-amber-800">
+        <Clock className="h-4 w-4 shrink-0" /> Тест басталғаннан кейін уақыт санағы жүреді ({trial.durationMin} мин).
       </div>
 
       <button

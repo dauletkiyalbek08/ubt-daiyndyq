@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { TestRunner } from "@/components/TestRunner";
 import { useAuth } from "@/components/AuthProvider";
 import { api, ApiError, type ApiTestFull } from "@/lib/api";
+import { Lock } from "lucide-react";
 
 export default function TestPage({ params }: { params: { id: string } }) {
   const { user, loading: authLoading } = useAuth();
@@ -32,7 +33,7 @@ export default function TestPage({ params }: { params: { id: string } }) {
     return (
       <div className="container-page max-w-md py-20 text-center">
         <div className="card">
-          <div className="text-4xl">🔒</div>
+          <Lock className="mx-auto h-10 w-10 text-brand" />
           <h1 className="mt-3 text-xl font-bold text-slate-900">Кіру қажет</h1>
           <p className="mt-2 text-sm text-slate-500">
             Тест тапсыру және нәтижені сақтау үшін аккаунтқа кіріңіз.

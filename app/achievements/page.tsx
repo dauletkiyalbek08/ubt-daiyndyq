@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { AchievementIcon } from "@/components/AchievementIcon";
+import { Lock, Check } from "lucide-react";
 import { api, type AchievementRow } from "@/lib/api";
 
 export default function AchievementsPage() {
@@ -70,9 +71,9 @@ export default function AchievementsPage() {
                 <h3 className="font-semibold text-slate-900">{a.title}</h3>
                 <p className="text-sm text-slate-500">{a.description}</p>
                 {a.unlocked ? (
-                  <span className="badge mt-1 bg-emerald-50 text-emerald-600">✓ Ашылды</span>
+                  <span className="badge mt-1 inline-flex items-center gap-1 bg-emerald-50 text-emerald-600"><Check className="h-3 w-3" /> Ашылды</span>
                 ) : (
-                  <span className="badge mt-1 bg-slate-100 text-slate-500">🔒 Жабық</span>
+                  <span className="badge mt-1 inline-flex items-center gap-1 bg-slate-100 text-slate-500"><Lock className="h-3 w-3" /> Жабық</span>
                 )}
               </div>
             </div>

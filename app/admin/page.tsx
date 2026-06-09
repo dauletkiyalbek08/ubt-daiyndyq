@@ -14,7 +14,7 @@ import {
 import { subjects } from "@/lib/mock-data";
 import { CreateTestForm } from "@/components/CreateTestForm";
 import { PlanEditor } from "@/components/PlanEditor";
-import { Wallet, Star, Users, FileText } from "lucide-react";
+import { Wallet, Star, Users, FileText, Clock, Trash2 } from "lucide-react";
 
 type Tab = "stats" | "users" | "tests" | "plans";
 
@@ -391,8 +391,8 @@ export default function AdminPage() {
                         <span className="badge ml-2 bg-brand/10 text-brand">Пробное</span>
                       )}
                       {t.published === false && (
-                        <span className="badge ml-2 bg-amber-50 text-amber-600">
-                          ⏳ Жоспарланған
+                        <span className="badge ml-2 inline-flex items-center gap-1 bg-amber-50 text-amber-600">
+                          <Clock className="h-3 w-3" /> Жоспарланған
                         </span>
                       )}
                     </td>
@@ -441,7 +441,7 @@ export default function AdminPage() {
           onClick={() => setDeleteTarget(null)}
         >
           <div className="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-xl" onClick={(e) => e.stopPropagation()}>
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-rose-50 text-3xl">🗑️</div>
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-rose-50 text-rose-500"><Trash2 className="h-7 w-7" /></div>
             <h3 className="mt-4 text-lg font-bold text-slate-900">Тестті жою</h3>
             <p className="mt-2 text-sm text-slate-600">
               «{deleteTarget.title}» тестін жойғыңыз келе ме? Бұл әрекетті қайтару мүмкін емес.

@@ -4,7 +4,7 @@ import { ENT_PROFILE_SUBJECTS } from "@/lib/ent";
 import { Reveal } from "@/components/Reveal";
 import { PlansPreview } from "@/components/PlansPreview";
 import { SubjectIcon } from "@/components/SubjectIcon";
-import { GraduationCap, Library, Languages, Clock, BarChart3, Sparkles } from "lucide-react";
+import { GraduationCap, Library, Languages, Clock, BarChart3, Sparkles, Rocket } from "lucide-react";
 
 const SUBJECT_COLORS = [
   "bg-blue-50 text-blue-600",
@@ -46,8 +46,8 @@ export default function HomePage() {
 
         <div className="container-page relative grid items-center gap-12 py-16 md:grid-cols-2 md:py-28">
           <div>
-            <span className="badge animate-fade-in bg-brand/10 text-brand">
-              🚀 №1 қазақ тіліндегі ҰБТ платформасы
+            <span className="badge inline-flex animate-fade-in items-center gap-1.5 bg-brand/10 text-brand">
+              <Rocket className="h-3.5 w-3.5" /> №1 қазақ тіліндегі ҰБТ платформасы
             </span>
             <h1 className="mt-5 animate-fade-up text-4xl font-extrabold leading-[1.1] tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
               ҰБТ-ға дайындалудың <span className="text-gradient">ең тиімді</span> платформасы
@@ -242,8 +242,8 @@ export default function HomePage() {
           <div className="shimmer-overlay relative overflow-hidden rounded-3xl bg-gradient-to-br from-brand via-brand to-brand-dark px-6 py-16 text-center text-white shadow-glow sm:px-8">
             <div className="pointer-events-none absolute -left-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
             <div className="pointer-events-none absolute -bottom-10 -right-10 h-48 w-48 rounded-full bg-white/10 blur-2xl" />
-            <span className="relative inline-flex rounded-full bg-white/15 px-4 py-1 text-sm font-medium text-white">
-              🎓 25 000+ оқушы сенеді
+            <span className="relative inline-flex items-center gap-1.5 rounded-full bg-white/15 px-4 py-1 text-sm font-medium text-white">
+              <GraduationCap className="h-4 w-4" /> 25 000+ оқушы сенеді
             </span>
             <h2 className="relative mt-4 text-3xl font-bold sm:text-4xl">Дайындықты бүгін бастаңыз</h2>
             <p className="relative mx-auto mt-3 max-w-xl text-white/90">

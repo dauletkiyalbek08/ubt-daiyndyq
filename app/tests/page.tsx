@@ -6,6 +6,7 @@ import { api, ApiError, type ApiTest } from "@/lib/api";
 import { subjects } from "@/lib/mock-data";
 import { PageTitle } from "@/components/PageTitle";
 import { SubjectIcon } from "@/components/SubjectIcon";
+import { FileText, Clock } from "lucide-react";
 
 const difficulties = ["Жеңіл", "Орташа", "Қиын"];
 const years = ["2024", "2023"];
@@ -134,8 +135,8 @@ export default function TestsPage() {
                     {subj?.name ?? t.subjectId} · {t.topic} · {t.year}
                   </p>
                   <div className="mt-4 flex gap-4 text-sm text-slate-500">
-                    <span>📝 {t.questionsCount ?? 0} сұрақ</span>
-                    <span>⏱ {t.durationMin} мин</span>
+                    <span className="inline-flex items-center gap-1"><FileText className="h-4 w-4" /> {t.questionsCount ?? 0} сұрақ</span>
+                    <span className="inline-flex items-center gap-1"><Clock className="h-4 w-4" /> {t.durationMin} мин</span>
                   </div>
                   <Link href={`/tests/${t.id}`} className="btn-primary mt-5 w-full">
                     Бастау

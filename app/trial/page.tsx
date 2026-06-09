@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { api, type ApiTest } from "@/lib/api";
 import { PageTitle } from "@/components/PageTitle";
+import { Target, Crown } from "lucide-react";
 
 export default function TrialPage() {
   const { user, loading } = useAuth();
@@ -32,7 +33,7 @@ export default function TrialPage() {
     <div className="container-page py-10">
       <PageTitle title="Пробное ҰБТ" />
       <div className="mx-auto max-w-4xl">
-        <span className="badge bg-brand/10 text-brand">🎯 Апта сайынғы нақты емтихан симуляциясы</span>
+        <span className="badge inline-flex items-center gap-1 bg-brand/10 text-brand"><Target className="h-3.5 w-3.5" /> Апта сайынғы нақты емтихан симуляциясы</span>
         <h1 className="mt-4 text-3xl font-bold text-slate-900">Пробное ҰБТ</h1>
         <p className="mt-3 text-slate-600">
           Әр аптада жаңа нұсқа — нақты ҰБТ форматында (120 сұрақ / 140 балл). Нәтиже рейтингке кіреді.
@@ -42,7 +43,7 @@ export default function TrialPage() {
         {!hasAccess && (
           <div className="mt-6 overflow-hidden rounded-2xl bg-gradient-to-br from-brand to-brand-dark p-6 text-white shadow-glow">
             <div className="flex items-start gap-4">
-              <span className="text-3xl">⭐</span>
+              <Crown className="h-8 w-8 shrink-0" />
               <div>
                 <h2 className="text-lg font-bold">Пробное ҰБТ — тек Премиум тарифінде</h2>
                 <p className="mt-1 text-sm text-white/90">

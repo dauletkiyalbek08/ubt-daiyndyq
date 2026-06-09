@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { subjectName } from "@/lib/ent";
 import { PeriodicTable } from "@/components/PeriodicTable";
-import { List, LayoutGrid, Calculator as CalculatorIcon, Atom, Ruler, PartyPopper, ThumbsUp, Dumbbell } from "lucide-react";
+import { List, LayoutGrid, Calculator as CalculatorIcon, Atom, Ruler, PartyPopper, ThumbsUp, Dumbbell, Lightbulb, Clock } from "lucide-react";
 import type { ReviewItem, SubjectScore } from "@/lib/api";
 
 export type RunnerQuestion = {
@@ -200,7 +200,7 @@ export function TestRunner({
           <span className="truncate font-semibold text-slate-800">{studentName}</span>
         </div>
         <div className="flex shrink-0 items-center gap-2 sm:gap-4">
-          <span className={`rounded-lg px-2 py-1.5 font-mono text-xs font-bold sm:px-3 sm:text-sm ${timeLeft < 60 ? "bg-rose-50 text-rose-600" : "bg-brand/10 text-brand"}`}>⏱ {fmt(timeLeft)}</span>
+          <span className={`inline-flex items-center gap-1 rounded-lg px-2 py-1.5 font-mono text-xs font-bold sm:px-3 sm:text-sm ${timeLeft < 60 ? "bg-rose-50 text-rose-600" : "bg-brand/10 text-brand"}`}><Clock className="h-4 w-4" /> {fmt(timeLeft)}</span>
           {secIndex < sections.length - 1 ? (
             <button onClick={nextSection} className="rounded-lg bg-brand px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-dark sm:px-4 sm:text-sm">
               <span className="hidden sm:inline">Келесі пән &gt;</span><span className="sm:hidden">Пән &gt;</span>
@@ -575,7 +575,7 @@ function ReviewCard({ item, index }: { item: ReviewItem; index: number }) {
               })}
             </div>
           )}
-          {item.explanation && <p className="mt-3 rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-700">💡 {item.explanation}</p>}
+          {item.explanation && <p className="mt-3 flex items-start gap-2 rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-700"><Lightbulb className="mt-0.5 h-4 w-4 shrink-0" /> {item.explanation}</p>}
         </div>
       </div>
     </div>

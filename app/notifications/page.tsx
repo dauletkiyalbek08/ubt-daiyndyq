@@ -4,12 +4,13 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { api, type NotifItem } from "@/lib/api";
+import { Bell, BellOff, PartyPopper, Hourglass, Ban, FileText, type LucideIcon } from "lucide-react";
 
-const ICONS: Record<string, string> = {
-  payment: "🎉",
-  sub_ending: "⏳",
-  sub_ended: "⛔",
-  new_test: "📝",
+const ICONS: Record<string, LucideIcon> = {
+  payment: PartyPopper,
+  sub_ending: Hourglass,
+  sub_ended: Ban,
+  new_test: FileText,
 };
 
 export default function NotificationsPage() {
@@ -46,12 +47,17 @@ export default function NotificationsPage() {
         {dataLoading ? (
           <div className="card text-slate-400">Жүктелуде...</div>
         ) : items.length === 0 ? (
-          <div className="card text-center text-slate-500">Әзірге хабарлама жоқ 🔕</div>
+          <div className="card flex flex-col items-center text-center text-slate-500">
+            <BellOff className="mb-2 h-8 w-8 text-slate-300" />
+            Әзірге хабарлама жоқ
+          </div>
         ) : (
-          items.map((n) => (
+          items.map((n) => {
+            const NIcon = ICONS[n.type] ?? Bell;
+            return (
             <div key={n.id} className="card flex items-start gap-4">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-2xl">
-                {ICONS[n.type] ?? "🔔"}
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand">
+                <NIcon className="h-5 w-5" />
               </div>
               <div className="flex-1">
                 <h3 className="font-semibold text-slate-900">{n.title}</h3>
@@ -62,7 +68,8 @@ export default function NotificationsPage() {
               </div>
               {!n.read && <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-brand" />}
             </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>
