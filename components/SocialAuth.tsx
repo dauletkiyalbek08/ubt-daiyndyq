@@ -1,15 +1,49 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { googleAuthUrl } from "@/lib/api";
 import { useAuth } from "@/components/AuthProvider";
 
-const TELEGRAM_BOT = process.env.NEXT_PUBLIC_TELEGRAM_BOT;
+// Числовой ID бота (часть токена до двоеточия). Нужен для запуска
+// официальной авторизации Telegram из нашей собственной кнопки.
+const TELEGRAM_BOT_ID = process.env.NEXT_PUBLIC_TELEGRAM_BOT_ID;
 
 export function SocialAuth({ action }: { action: "login" | "register" }) {
   const [notice, setNotice] = useState("");
+  const router = useRouter();
+  const { loginWithTelegram } = useAuth();
   const verb = action === "register" ? "жалғастыру" : "кіру";
+
+  // Подгружаем telegram-widget.js — он определяет window.Telegram.Login.auth,
+  // которым мы открываем окно входа по клику на нашу кнопку.
+  useEffect(() => {
+    if (!TELEGRAM_BOT_ID || document.getElementById("tg-widget-script")) return;
+    const s = document.createElement("script");
+    s.id = "tg-widget-script";
+    s.src = "https://telegram.org/js/telegram-widget.js?22";
+    s.async = true;
+    document.body.appendChild(s);
+  }, []);
+
+  function telegramLogin() {
+    const TG = (window as any).Telegram;
+    if (!TELEGRAM_BOT_ID || !TG?.Login) {
+      setNotice(`Telegram арқылы ${verb} жақында қосылады`);
+      return;
+    }
+    TG.Login.auth(
+      { bot_id: TELEGRAM_BOT_ID, request_access: "write" },
+      (data: Record<string, unknown> | false) => {
+        if (!data) return; // пользователь закрыл окно
+        loginWithTelegram(data)
+          .then(() => router.push("/dashboard"))
+          .catch((e) =>
+            setNotice(e instanceof Error ? e.message : "Telegram кіру қатесі")
+          );
+      }
+    );
+  }
 
   return (
     <div>
@@ -26,19 +60,15 @@ export function SocialAuth({ action }: { action: "login" | "register" }) {
           Google арқылы {verb}
         </button>
 
-        {/* Telegram — официальный виджет, если бот настроен */}
-        {TELEGRAM_BOT ? (
-          <TelegramButton onNotice={setNotice} />
-        ) : (
-          <button
-            type="button"
-            onClick={() => setNotice(`Telegram арқылы ${verb} жақында қосылады`)}
-            className="flex w-full items-center justify-center gap-3 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm font-semibold text-sky-600 transition-all duration-200 hover:-translate-y-0.5 hover:border-sky-300 hover:shadow-card active:translate-y-0"
-          >
-            <TelegramIcon />
-            Telegram арқылы {verb}
-          </button>
-        )}
+        {/* Telegram — кнопка в стиле сайта, запускает официальный вход по клику */}
+        <button
+          type="button"
+          onClick={telegramLogin}
+          className="flex w-full items-center justify-center gap-3 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm font-semibold text-sky-600 transition-all duration-200 hover:-translate-y-0.5 hover:border-sky-300 hover:shadow-card active:translate-y-0"
+        >
+          <TelegramIcon />
+          Telegram арқылы {verb}
+        </button>
       </div>
 
       {notice && (
@@ -56,39 +86,6 @@ export function SocialAuth({ action }: { action: "login" | "register" }) {
       </div>
     </div>
   );
-}
-
-// Telegram Login Widget: вставляет официальный скрипт, который рисует кнопку.
-// Работает только на публичном домене, указанном боту через @BotFather (/setdomain).
-function TelegramButton({ onNotice }: { onNotice: (m: string) => void }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const router = useRouter();
-  const { loginWithTelegram } = useAuth();
-
-  useEffect(() => {
-    // Глобальный колбэк, который вызывает виджет Telegram после входа
-    (window as any).onTelegramAuth = (user: Record<string, unknown>) => {
-      loginWithTelegram(user)
-        .then(() => router.push("/dashboard"))
-        .catch((e) => onNotice(e instanceof Error ? e.message : "Telegram кіру қатесі"));
-    };
-
-    const container = ref.current;
-    if (!container || container.childElementCount > 0) return;
-
-    const script = document.createElement("script");
-    script.src = "https://telegram.org/js/telegram-widget.js?22";
-    script.async = true;
-    script.setAttribute("data-telegram-login", TELEGRAM_BOT as string);
-    script.setAttribute("data-size", "large");
-    script.setAttribute("data-radius", "12");
-    script.setAttribute("data-request-access", "write");
-    script.setAttribute("data-onauth", "onTelegramAuth(user)");
-    container.appendChild(script);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return <div ref={ref} className="flex justify-center" />;
 }
 
 function GoogleIcon() {
