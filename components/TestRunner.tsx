@@ -211,6 +211,14 @@ export function TestRunner({
         </div>
       </header>
 
+      {/* Прогресс: сколько вопросов отвечено */}
+      <div className="relative z-10 h-1 w-full shrink-0 bg-slate-100">
+        <div
+          className="h-full bg-gradient-to-r from-brand to-brand-light transition-all duration-300"
+          style={{ width: `${Math.round((answeredCount / Math.max(1, questions.length)) * 100)}%` }}
+        />
+      </div>
+
       <div className="relative z-10 flex min-h-0 flex-1">
         {/* Левая панель инструментов */}
         <aside className="flex w-16 shrink-0 flex-col items-center gap-1 overflow-y-auto border-r border-slate-200 bg-white py-3 sm:w-20">
