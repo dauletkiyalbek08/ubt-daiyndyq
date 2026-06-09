@@ -176,14 +176,16 @@ export default function HomePage() {
               <Reveal key={subj.id} delay={i * 40}>
                 <Link
                   href={`/tests?subject=${subj.id}`}
-                  className="card group flex items-center gap-3 transition-all duration-300 hover:-translate-y-1 hover:border-brand/30 hover:shadow-card-hover"
+                  className="card group flex items-center gap-3 p-4 transition-all duration-300 hover:-translate-y-1 hover:border-brand/30 hover:shadow-card-hover"
                 >
                   <span
                     className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xl transition-transform duration-300 group-hover:scale-110 ${SUBJECT_COLORS[i % SUBJECT_COLORS.length]}`}
                   >
                     {subj.icon}
                   </span>
-                  <span className="font-medium text-slate-800 group-hover:text-brand">{subj.name}</span>
+                  <span className="min-w-0 break-words text-sm font-medium leading-tight text-slate-800 group-hover:text-brand sm:text-base">
+                    {subj.name}
+                  </span>
                 </Link>
               </Reveal>
             ))}
