@@ -113,18 +113,38 @@ export function TestRunner({
   // ---------- РЕЗУЛЬТАТ ----------
   if (result) {
     const subjects = (result.bySubject ?? []).filter((s) => s.subjectId !== "other");
+    const emoji = percent >= 70 ? "🎉" : percent >= 40 ? "👍" : "💪";
+    const message =
+      percent >= 85 ? "Тамаша нәтиже! Осылай жалғастыр 🔥"
+      : percent >= 70 ? "Жарайсың, жақсы жұмыс! 👏"
+      : percent >= 40 ? "Жаман емес — әрі қарай жақсартамыз 💪"
+      : "Бастама жасалды, дайындықты жалғастыр 📚";
     return (
       <div className="container-page max-w-3xl py-10">
-        <div className="card text-center">
-          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-brand/10 text-4xl">
-            {percent >= 70 ? "🎉" : percent >= 40 ? "👍" : "💪"}
-          </div>
-          <h1 className="mt-4 text-2xl font-bold text-slate-900">Тест аяқталды!</h1>
-          <p className="mt-1 text-slate-500">{title}</p>
-          <div className="mt-6 grid grid-cols-3 gap-4">
-            <div className="rounded-xl bg-surface p-4"><p className="text-2xl font-bold text-brand">{result.score}/{result.total}</p><p className="text-xs text-slate-500">Балл</p></div>
-            <div className="rounded-xl bg-surface p-4"><p className="text-2xl font-bold text-brand">{percent}%</p><p className="text-xs text-slate-500">Нәтиже</p></div>
-            <div className="rounded-xl bg-surface p-4"><p className="text-2xl font-bold text-brand">{fmt(durationMin * 60 - timeLeft)}</p><p className="text-xs text-slate-500">Уақыт</p></div>
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand to-brand-dark p-8 text-center text-white shadow-glow">
+          <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
+          <div className="pointer-events-none absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
+          <div className="relative">
+            <div className="text-5xl">{emoji}</div>
+            <h1 className="mt-3 text-2xl font-bold">Тест аяқталды!</h1>
+            <p className="mt-1 text-white/80">{title}</p>
+
+            <div className="mx-auto mt-6 w-fit">
+              <ProgressRing percent={percent} score={result.score} total={result.total} />
+            </div>
+
+            <p className="mt-4 text-lg font-semibold">{message}</p>
+
+            <div className="mx-auto mt-6 grid max-w-sm grid-cols-2 gap-3">
+              <div className="rounded-xl bg-white/10 p-3 backdrop-blur">
+                <p className="text-xl font-bold">{result.score} / {result.total}</p>
+                <p className="text-xs text-white/70">Балл</p>
+              </div>
+              <div className="rounded-xl bg-white/10 p-3 backdrop-blur">
+                <p className="text-xl font-bold">{fmt(durationMin * 60 - timeLeft)}</p>
+                <p className="text-xs text-white/70">Уақыт</p>
+              </div>
+            </div>
           </div>
         </div>
         {subjects.length > 0 && (
@@ -301,6 +321,36 @@ export function TestRunner({
           )}
         </ToolModal>
       )}
+    </div>
+  );
+}
+
+// Кольцо прогресса для экрана результата (белое на цветном фоне)
+function ProgressRing({ percent, score, total }: { percent: number; score: number; total: number }) {
+  const r = 52;
+  const c = 2 * Math.PI * r;
+  const offset = c * (1 - Math.max(0, Math.min(100, percent)) / 100);
+  return (
+    <div className="relative h-32 w-32">
+      <svg viewBox="0 0 120 120" className="h-32 w-32 -rotate-90">
+        <circle cx="60" cy="60" r={r} fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="10" />
+        <circle
+          cx="60"
+          cy="60"
+          r={r}
+          fill="none"
+          stroke="#ffffff"
+          strokeWidth="10"
+          strokeLinecap="round"
+          strokeDasharray={c}
+          strokeDashoffset={offset}
+          style={{ transition: "stroke-dashoffset 1s cubic-bezier(0.22,1,0.36,1)" }}
+        />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="text-3xl font-extrabold">{percent}%</span>
+        <span className="text-xs text-white/70">{score}/{total}</span>
+      </div>
     </div>
   );
 }
