@@ -97,8 +97,48 @@ export function CreateTestForm({
       .filter((i) => i >= 0);
   }
 
-  // Импорт вопросов из вставленной таблицы (Tab между ячейками).
-  // Колонки: предмет | вопрос | A | B | C | … | дұрыс (последняя колонка)
+  // Одна строка таблицы → вопрос. Колонки: предмет | вопрос | A | B | … | дұрыс
+  function rowToQuestion(cellsRaw: (string | number)[]): QForm | null {
+    const cells = cellsRaw.map((c) => String(c ?? "").trim());
+    while (cells.length && cells[cells.length - 1] === "") cells.pop();
+    if (cells.length < 4) return null;
+    const subject = cells[0];
+    const text = cells[1];
+    const correctRaw = cells[cells.length - 1];
+    const options = cells.slice(2, cells.length - 1);
+    const correctIdx = answersToIdx(correctRaw).filter((i) => i < options.length);
+    if (options.length < 2 || correctIdx.length === 0) return null;
+    const isMulti = correctIdx.length > 1;
+    return {
+      ...emptyQuestion(),
+      type: isMulti ? "multiple" : "single",
+      text,
+      options,
+      correctIndex: isMulti ? 0 : correctIdx[0],
+      correctIndexes: isMulti ? correctIdx : [],
+      points: isMulti ? 3 : 1,
+      subject,
+    };
+  }
+
+  const isHeader = (first: string) => /предмет|пән|subject/i.test((first ?? "").trim());
+
+  // Добавляем распознанные вопросы в форму
+  function applyParsed(parsed: QForm[], skipped: number) {
+    if (parsed.length === 0) {
+      setImportMsg("Қате: бірде-бір жол танылмады (бағандарды тексеріңіз)");
+      return;
+    }
+    setQuestions((qs) => {
+      const onlyEmpty =
+        qs.length === 1 && qs[0].text.trim() === "" && qs[0].options.every((o) => !o.trim());
+      return onlyEmpty ? parsed : [...qs, ...parsed];
+    });
+    setImportText("");
+    setImportMsg(`✓ ${parsed.length} сұрақ қосылды${skipped ? ` · ${skipped} жол өткізілді` : ""}`);
+  }
+
+  // Импорт из вставленного текста (Tab из Excel/Sheets либо «|» вручную)
   function parseImport() {
     setImportMsg("");
     const lines = importText.split(/\r?\n/).filter((l) => l.trim() !== "");
@@ -109,47 +149,42 @@ export function CreateTestForm({
     const parsed: QForm[] = [];
     let skipped = 0;
     lines.forEach((line, idx) => {
-      // Из Excel/Sheets ячейки разделены Tab; для ручной вставки поддерживаем «|»
       const sep = line.includes("\t") ? "\t" : "|";
-      const cells = line.split(sep).map((c) => c.trim());
-      while (cells.length && cells[cells.length - 1] === "") cells.pop();
-      // пропускаем строку-заголовок
-      if (idx === 0 && /предмет|пән|subject/i.test(cells[0] ?? "")) return;
-      if (cells.length < 4) {
-        skipped++;
-        return;
-      }
-      const subject = cells[0];
-      const text = cells[1];
-      const correctRaw = cells[cells.length - 1];
-      const options = cells.slice(2, cells.length - 1);
-      const correctIdx = answersToIdx(correctRaw).filter((i) => i < options.length);
-      if (options.length < 2 || correctIdx.length === 0) {
-        skipped++;
-        return;
-      }
-      const isMulti = correctIdx.length > 1;
-      parsed.push({
-        ...emptyQuestion(),
-        type: isMulti ? "multiple" : "single",
-        text,
-        options,
-        correctIndex: isMulti ? 0 : correctIdx[0],
-        correctIndexes: isMulti ? correctIdx : [],
-        points: isMulti ? 3 : 1,
-        subject,
+      const cells = line.split(sep);
+      if (idx === 0 && isHeader(cells[0])) return;
+      const q = rowToQuestion(cells);
+      if (q) parsed.push(q);
+      else skipped++;
+    });
+    applyParsed(parsed, skipped);
+  }
+
+  // Импорт из файла .xlsx / .xls / .csv
+  async function handleImportFile(file?: File) {
+    if (!file) return;
+    setImportMsg("Файл оқылуда...");
+    try {
+      const XLSX = await import("xlsx");
+      const buf = await file.arrayBuffer();
+      const wb = XLSX.read(buf, { type: "array" });
+      const sheet = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json<(string | number)[]>(sheet, {
+        header: 1,
+        blankrows: false,
       });
-    });
-    if (parsed.length === 0) {
-      setImportMsg("Қате: бірде-бір жол танылмады (бағандарды тексеріңіз)");
-      return;
+      const parsed: QForm[] = [];
+      let skipped = 0;
+      rows.forEach((row, idx) => {
+        const cells = Array.isArray(row) ? row : [];
+        if (idx === 0 && isHeader(String(cells[0] ?? ""))) return;
+        const q = rowToQuestion(cells);
+        if (q) parsed.push(q);
+        else if (cells.some((c) => String(c ?? "").trim())) skipped++;
+      });
+      applyParsed(parsed, skipped);
+    } catch {
+      setImportMsg("Файлды оқу қатесі (.xlsx немесе .csv жүктеңіз)");
     }
-    setQuestions((qs) => {
-      const onlyEmpty = qs.length === 1 && qs[0].text.trim() === "" && qs[0].options.every((o) => !o.trim());
-      return onlyEmpty ? parsed : [...qs, ...parsed];
-    });
-    setImportText("");
-    setImportMsg(`✓ ${parsed.length} сұрақ қосылды${skipped ? ` · ${skipped} жол өткізілді` : ""}`);
   }
 
   async function handleImage(qi: number, file?: File) {
@@ -264,25 +299,44 @@ export function CreateTestForm({
 
       {/* Импорт из Excel */}
       <div className="rounded-xl border border-slate-200 bg-surface p-4">
-        <h4 className="font-semibold text-slate-900">Excel-ден импорт</h4>
+        <h4 className="font-semibold text-slate-900">Сұрақтарды импорттау</h4>
         <p className="mt-1 text-xs text-slate-500">
-          Бағандар (Tab арқылы, Excel/Sheets-тен көшіріп қойыңыз):{" "}
-          <b>предмет · сұрақ · A · B · C · D · … · дұрыс</b>. «Дұрыс» — соңғы баған
-          (бір әріп: <code>B</code>; бірнеше жауап: <code>A,C</code>).
+          Бағандар: <b>предмет · сұрақ · A · B · C · D · … · дұрыс</b>. «Дұрыс» — соңғы баған
+          (бір әріп <code>B</code>; бірнеше жауап <code>A,C</code>).
         </p>
-        <textarea
-          value={importText}
-          onChange={(e) => setImportText(e.target.value)}
-          rows={5}
-          className="input-field mt-2 font-mono text-xs"
-          placeholder={"history\tҚазақ хандығы қашан құрылды?\t1456\t1465\t1470\t1480\tB"}
-        />
-        <div className="mt-2 flex items-center gap-3">
-          <button type="button" onClick={parseImport} className="btn-secondary text-sm">
+
+        {/* Загрузка файла */}
+        <label className="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-xl bg-brand px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-dark">
+          📄 Файл жүктеу (.xlsx, .csv)
+          <input
+            type="file"
+            accept=".xlsx,.xls,.csv"
+            className="hidden"
+            onChange={(e) => {
+              handleImportFile(e.target.files?.[0]);
+              e.target.value = "";
+            }}
+          />
+        </label>
+
+        {/* Или вставить текстом */}
+        <details className="mt-3">
+          <summary className="cursor-pointer text-xs font-medium text-slate-500">
+            немесе мәтінмен қою (Excel-ден көшіру)
+          </summary>
+          <textarea
+            value={importText}
+            onChange={(e) => setImportText(e.target.value)}
+            rows={5}
+            className="input-field mt-2 font-mono text-xs"
+            placeholder={"history\tҚазақ хандығы қашан құрылды?\t1456\t1465\t1470\t1480\tB"}
+          />
+          <button type="button" onClick={parseImport} className="btn-secondary mt-2 text-sm">
             Қосу
           </button>
-          {importMsg && <span className="text-xs text-slate-600">{importMsg}</span>}
-        </div>
+        </details>
+
+        {importMsg && <p className="mt-2 text-xs font-medium text-slate-600">{importMsg}</p>}
       </div>
 
       {/* Вопросы */}
