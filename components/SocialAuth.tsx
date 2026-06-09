@@ -64,7 +64,7 @@ export function SocialAuth({ action }: { action: "login" | "register" }) {
         <button
           type="button"
           onClick={telegramLogin}
-          className="flex w-full items-center justify-center gap-3 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm font-semibold text-sky-600 transition-all duration-200 hover:-translate-y-0.5 hover:border-sky-300 hover:shadow-card active:translate-y-0"
+          className="flex w-full items-center justify-center gap-3 rounded-xl border border-brand/25 bg-brand/5 px-4 py-3 text-sm font-semibold text-brand transition-all duration-200 hover:-translate-y-0.5 hover:border-brand/50 hover:shadow-card active:translate-y-0"
         >
           <TelegramIcon />
           Telegram арқылы {verb}
