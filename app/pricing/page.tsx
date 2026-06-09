@@ -54,10 +54,19 @@ export default function PricingPage() {
         </div>
       </div>
 
-      <div className="mx-auto grid max-w-3xl gap-6 md:grid-cols-2">
+      <div className="mx-auto grid max-w-3xl gap-6 md:grid-cols-2 md:items-start">
         {plans.map((plan) => (
-          <div key={plan.id} className={`card flex flex-col ${plan.popular ? "relative ring-2 ring-brand" : ""}`}>
-            {plan.popular && <span className="badge mb-3 w-fit bg-brand text-white shadow-glow">Танымал таңдау</span>}
+          <div
+            key={plan.id}
+            className={`card relative flex flex-col ${
+              plan.popular ? "border-brand ring-2 ring-brand shadow-glow md:-mt-2" : ""
+            }`}
+          >
+            {plan.popular && (
+              <span className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gradient-to-r from-brand to-brand-light px-4 py-1 text-xs font-bold text-white shadow-glow">
+                ⭐ Танымал таңдау
+              </span>
+            )}
             <h3 className="text-xl font-bold text-slate-900">{plan.name}</h3>
 
             <div className="mt-4">
@@ -65,20 +74,26 @@ export default function PricingPage() {
               <span className="text-sm text-slate-500"> / {periodLabel}</span>
             </div>
             {billing === "year" && (
-              <p className="mt-1 text-xs text-emerald-600">
+              <p className="mt-1 text-xs font-medium text-emerald-600">
                 3 айлықпен салыстырғанда {fmt(plan.priceQuarter * 4 - plan.priceYear)} үнемдейсіз
               </p>
             )}
 
             <ul className="mt-6 flex-1 space-y-2.5 text-sm">
               {plan.features.map((f) => (
-                <li key={f} className="flex items-start gap-2 text-slate-700">
-                  <span className="text-emerald-500">✓</span> {f}
+                <li key={f} className="flex items-start gap-2.5 text-slate-700">
+                  <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[10px] font-bold text-emerald-600">
+                    ✓
+                  </span>
+                  {f}
                 </li>
               ))}
               {plan.excluded.map((f) => (
-                <li key={f} className="flex items-start gap-2 text-slate-400 line-through">
-                  <span>✕</span> {f}
+                <li key={f} className="flex items-start gap-2.5 text-slate-400">
+                  <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-slate-100 text-[10px]">
+                    ✕
+                  </span>
+                  <span className="line-through">{f}</span>
                 </li>
               ))}
             </ul>
