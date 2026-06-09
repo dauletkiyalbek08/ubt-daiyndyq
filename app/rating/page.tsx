@@ -52,6 +52,9 @@ export default function RatingPage() {
         <p className="mt-2 text-slate-600">
           Пробное ҰБТ балдары бойынша · Премиум қатысушылары
         </p>
+        {!loading && rows.length > 0 && (
+          <p className="mt-1 text-sm text-slate-400">Барлығы: {rows.length} оқушы (топ-100)</p>
+        )}
       </div>
 
       {/* Период */}
