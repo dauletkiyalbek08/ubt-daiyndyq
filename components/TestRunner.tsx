@@ -163,8 +163,9 @@ export function TestRunner({
             </div>
           </div>
         )}
-        <h2 className="mb-4 mt-8 text-xl font-bold text-slate-900">Қателерді талдау</h2>
-        <div className="space-y-4">{result.review.map((item, i) => (<ReviewCard key={item.questionId} item={item} index={i} />))}</div>
+        <div className="mt-8">
+          <ReviewBySubject review={result.review} />
+        </div>
         <div className="mt-8 flex justify-center gap-4">
           <Link href={backHref} className="btn-secondary">Артқа</Link>
           <Link href="/dashboard" className="btn-primary">Жеке кабинет</Link>
@@ -460,6 +461,74 @@ function UnitsTable() {
         {rows.map(([a, b]) => (<tr key={a} className="border-b border-slate-100"><td className="py-2 text-slate-700">{a}</td><td className="py-2 text-right font-medium text-slate-900">{b}</td></tr>))}
       </tbody>
     </table>
+  );
+}
+
+// Разбор ответов, сгруппированный по предметам (сворачиваемые секции)
+function ReviewBySubject({ review }: { review: ReviewItem[] }) {
+  const [onlyWrong, setOnlyWrong] = useState(false);
+
+  // группируем по предмету в порядке появления вопросов
+  const groups: { subject: string | null; items: { item: ReviewItem; index: number }[] }[] = [];
+  review.forEach((item, index) => {
+    const key = item.subject ?? "—";
+    let g = groups.find((x) => (x.subject ?? "—") === key);
+    if (!g) {
+      g = { subject: item.subject ?? null, items: [] };
+      groups.push(g);
+    }
+    g.items.push({ item, index });
+  });
+
+  return (
+    <div className="space-y-3">
+      <div className="mb-1 flex items-center justify-between gap-2">
+        <h2 className="text-xl font-bold text-slate-900">Жауаптарды талдау</h2>
+        <button
+          onClick={() => setOnlyWrong((v) => !v)}
+          className={`badge ${onlyWrong ? "bg-rose-50 text-rose-600" : "bg-slate-100 text-slate-600"}`}
+        >
+          {onlyWrong ? "Барлығын көрсету" : "Тек қателер"}
+        </button>
+      </div>
+
+      {groups.map((g) => {
+        const items = onlyWrong ? g.items.filter((x) => !x.item.correct) : g.items;
+        const correct = g.items.filter((x) => x.item.correct).length;
+        const wrong = g.items.length - correct;
+        const gained = g.items.reduce((s, x) => s + x.item.gained, 0);
+        const max = g.items.reduce((s, x) => s + x.item.points, 0);
+        if (items.length === 0) return null;
+        return (
+          <details
+            key={g.subject ?? "—"}
+            className="group overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-card"
+          >
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4 [&::-webkit-details-marker]:hidden">
+              <span className="min-w-0 truncate font-semibold text-slate-900">
+                {subjectName(g.subject) || "Сұрақтар"}
+              </span>
+              <span className="flex shrink-0 items-center gap-2 text-sm">
+                {wrong > 0 ? (
+                  <span className="badge bg-rose-50 text-rose-600">{wrong} қате</span>
+                ) : (
+                  <span className="badge bg-emerald-50 text-emerald-600">Қатесіз ✓</span>
+                )}
+                <span className="hidden text-slate-500 sm:inline">
+                  {correct}/{g.items.length} · {gained}/{max} балл
+                </span>
+                <span className="text-slate-400 transition-transform group-open:rotate-180">▾</span>
+              </span>
+            </summary>
+            <div className="space-y-4 border-t border-slate-100 bg-surface p-4">
+              {items.map(({ item, index }) => (
+                <ReviewCard key={item.questionId} item={item} index={index} />
+              ))}
+            </div>
+          </details>
+        );
+      })}
+    </div>
   );
 }
 
