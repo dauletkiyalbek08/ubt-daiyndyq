@@ -29,6 +29,14 @@ export function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Блокируем прокрутку страницы, пока открыто мобильное меню
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
+
   function handleLogout() {
     logout();
     setOpen(false);
@@ -118,18 +126,32 @@ export function Header() {
       </div>
 
       {open && (
-        <div className="border-t border-slate-100 bg-white md:hidden">
-          <div className="container-page flex flex-col gap-1 py-3">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setOpen(false)}
-                className="rounded-lg px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
-              >
-                {link.label}
-              </Link>
-            ))}
+        <>
+          {/* Затемнение фона — клик закрывает меню */}
+          <button
+            aria-label="Жабу"
+            onClick={() => setOpen(false)}
+            className="fixed inset-0 top-16 z-40 animate-fade-in bg-slate-900/40 backdrop-blur-sm md:hidden"
+          />
+          <div className="absolute inset-x-0 top-16 z-50 origin-top animate-fade-up border-t border-slate-100 bg-white shadow-card md:hidden">
+            <div className="container-page flex flex-col gap-1 py-3">
+              {navLinks.map((link) => {
+                const active = pathname === link.href;
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setOpen(false)}
+                    className={`rounded-lg px-4 py-2.5 text-sm font-medium transition-colors ${
+                      active
+                        ? "bg-brand/10 text-brand"
+                        : "text-slate-700 hover:bg-slate-50"
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
             <div className="mt-2 flex flex-col gap-2 border-t border-slate-100 pt-3">
               {user ? (
                 <>
@@ -159,8 +181,9 @@ export function Header() {
                 </>
               )}
             </div>
+            </div>
           </div>
-        </div>
+        </>
       )}
     </header>
   );
