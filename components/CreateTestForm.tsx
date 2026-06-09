@@ -134,7 +134,8 @@ export function CreateTestForm({
     };
   }
 
-  const isHeader = (first: string) => /предмет|пән|subject/i.test((first ?? "").trim());
+  const isHeader = (first: string) =>
+    /^(предмет|пән|subject|сұрақ|вопрос|question)$/i.test((first ?? "").trim());
 
   // Добавляем распознанные вопросы в форму
   function applyParsed(parsed: QForm[], skipped: number) {
