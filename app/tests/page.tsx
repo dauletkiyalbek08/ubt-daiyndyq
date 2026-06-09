@@ -3,110 +3,140 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { api, ApiError, type ApiTest } from "@/lib/api";
-import { subjects } from "@/lib/mock-data";
+import { ALL_SUBJECTS, subjectName } from "@/lib/ent";
 import { PageTitle } from "@/components/PageTitle";
-import { SubjectIcon } from "@/components/SubjectIcon";
-import { FileText, Clock } from "lucide-react";
+import { FileText, Clock, ChevronDown } from "lucide-react";
+
+type Mode = "full" | "subject";
 
 export default function TestsPage() {
+  const [mode, setMode] = useState<Mode>("full");
   const [subject, setSubject] = useState("all");
-  const [query, setQuery] = useState("");
-  const [tests, setTests] = useState<ApiTest[]>([]);
+  const [items, setItems] = useState<ApiTest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Загружаем тесты с сервера при изменении фильтров (с небольшой задержкой для поиска)
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(true);
-      setError("");
-      api
-        .listTests({
-          subject: subject === "all" ? undefined : subject,
-          q: query || undefined,
-        })
-        .then(setTests)
-        .catch((e) => setError(e instanceof ApiError ? e.message : "Жүктеу қатесі"))
-        .finally(() => setLoading(false));
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [subject, query]);
-
-  const subjectInfo = (id: string) => subjects.find((s) => s.id === id);
+    setLoading(true);
+    setError("");
+    const load =
+      mode === "full"
+        ? api.listTrials().then((r) => r.trials)
+        : api.listTests({ subject: subject === "all" ? undefined : subject });
+    load
+      .then(setItems)
+      .catch((e) => setError(e instanceof ApiError ? e.message : "Жүктеу қатесі"))
+      .finally(() => setLoading(false));
+  }, [mode, subject]);
 
   return (
     <div className="container-page py-10">
       <PageTitle title="Тесттер" />
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900">Тесттер</h1>
-        <p className="mt-2 text-slate-600">Пән бойынша сүзіп, тест таңдаңыз</p>
-      </div>
 
-      <div className="card mb-8">
-        <div className="grid gap-4 md:grid-cols-2">
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-slate-700">Пән</label>
-            <select value={subject} onChange={(e) => setSubject(e.target.value)} className="input-field">
-              <option value="all">Барлық пәндер</option>
-              {subjects.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name}
-                </option>
-              ))}
-            </select>
+      {/* Шапка с фильтрами */}
+      <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <h1 className="text-3xl font-bold text-slate-900">Тест</h1>
+
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          {/* Переключатель режима */}
+          <div className="inline-flex rounded-xl border border-slate-200 bg-white p-1">
+            <button
+              onClick={() => setMode("full")}
+              className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
+                mode === "full" ? "bg-brand text-white shadow-sm" : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              ҰБТ — 5 пән бойынша
+            </button>
+            <button
+              onClick={() => setMode("subject")}
+              className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
+                mode === "subject" ? "bg-brand text-white shadow-sm" : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              ҰБТ — Пән бойынша
+            </button>
           </div>
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-slate-700">Іздеу</label>
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Тақырып немесе атау..."
-              className="input-field"
-            />
+
+          {/* Предмет (только для «по предмету») */}
+          {mode === "subject" && (
+            <div className="relative">
+              <select
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                className="input-field appearance-none pr-10"
+              >
+                <option value="all">Барлық пәндер</option>
+                {ALL_SUBJECTS.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            </div>
+          )}
+
+          {/* Язык (пока только казахский) */}
+          <div className="relative">
+            <select className="input-field appearance-none pr-10" defaultValue="kk">
+              <option value="kk">Қазақша</option>
+            </select>
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           </div>
         </div>
       </div>
 
-      {error && (
-        <div className="card mb-6 bg-rose-50 text-rose-700">{error}</div>
-      )}
+      {error && <div className="card mb-6 bg-rose-50 text-rose-700">{error}</div>}
 
       {loading ? (
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="card h-56 animate-pulse bg-slate-50" />
+            <div key={i} className="card h-48 animate-pulse bg-slate-50" />
           ))}
         </div>
-      ) : tests.length === 0 ? (
-        <div className="card text-center text-slate-500">Сүзгіге сәйкес тест табылмады.</div>
+      ) : items.length === 0 ? (
+        <div className="card text-center text-slate-500">
+          {mode === "full" ? "Әзірге пробное ҰБТ жоқ." : "Бұл пән бойынша тест табылмады."}
+        </div>
       ) : (
-        <>
-          <p className="mb-4 text-sm text-slate-500">{tests.length} тест табылды</p>
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {tests.map((t) => {
-              const subj = subjectInfo(t.subjectId);
-              return (
-                <div key={t.id} className="card flex flex-col transition hover:-translate-y-1 hover:shadow-lg">
-                  <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${subj?.color ?? "bg-slate-100 text-slate-500"}`}>
-                    <SubjectIcon id={t.subjectId} className="h-5 w-5" />
-                  </span>
-                  <h3 className="mt-4 text-lg font-semibold text-slate-900">{t.title}</h3>
-                  <p className="mt-1 text-sm text-slate-500">
-                    {subj?.name ?? t.subjectId} · {t.topic}
-                  </p>
-                  <div className="mt-4 flex gap-4 text-sm text-slate-500">
-                    <span className="inline-flex items-center gap-1"><FileText className="h-4 w-4" /> {t.questionsCount ?? 0} сұрақ</span>
-                    <span className="inline-flex items-center gap-1"><Clock className="h-4 w-4" /> {t.durationMin} мин</span>
-                  </div>
-                  <Link href={`/tests/${t.id}`} className="btn-primary mt-5 w-full">
-                    Бастау
-                  </Link>
-                </div>
-              );
-            })}
-          </div>
-        </>
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {items.map((t) => (
+            <TestCard key={t.id} t={t} mode={mode} />
+          ))}
+        </div>
       )}
+    </div>
+  );
+}
+
+function TestCard({ t, mode }: { t: ApiTest; mode: Mode }) {
+  const isFull = mode === "full";
+  const href = isFull ? `/trial/${t.id}` : `/tests/${t.id}`;
+  const tag = isFull ? "ҰБТ — 5 пән бойынша" : subjectName(t.subjectId) || t.topic;
+
+  return (
+    <div className="card-interactive flex flex-col">
+      <h3 className="text-lg font-bold leading-snug text-slate-900">{t.title}</h3>
+
+      {/* Пиллы: язык · вопросы · время */}
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        <span className="badge bg-slate-100 text-slate-600">Қазақша</span>
+        <span className="badge inline-flex items-center gap-1 bg-slate-100 text-slate-600">
+          <FileText className="h-3.5 w-3.5" /> {t.questionsCount ?? 120}
+        </span>
+        <span className="badge inline-flex items-center gap-1 bg-slate-100 text-slate-600">
+          <Clock className="h-3.5 w-3.5" /> {t.durationMin} мин
+        </span>
+      </div>
+
+      {/* Низ: тег + кнопка */}
+      <div className="mt-6 flex items-center justify-between gap-3">
+        <span className="badge bg-emerald-50 text-emerald-600">{tag}</span>
+        <Link href={href} className="btn-primary px-5 py-2 text-sm">
+          Толығырақ
+        </Link>
+      </div>
     </div>
   );
 }
