@@ -7,6 +7,7 @@ import { ProgressChart } from "@/components/ProgressChart";
 import { useAuth } from "@/components/AuthProvider";
 import { api, PLAN_LABELS, type AchievementRow, type ResultRow, type UserStats } from "@/lib/api";
 import { subjectName } from "@/lib/ent";
+import { FileCheck2, BarChart3, Trophy, Target } from "lucide-react";
 
 type Analytics = {
   weekly: { label: string; value: number }[];
@@ -50,10 +51,10 @@ export default function DashboardPage() {
   }
 
   const metrics = [
-    { label: "Аяқталған тесттер", value: stats?.testsCompleted ?? 0, icon: "📝", grad: "from-brand to-brand-light" },
-    { label: "Орташа балл", value: `${stats?.averageScore ?? 0}%`, icon: "📊", grad: "from-emerald-500 to-teal-500" },
-    { label: "Үздік нәтиже", value: `${stats?.bestScore ?? 0}%`, icon: "🏆", grad: "from-amber-500 to-orange-500" },
-    { label: "Дұрыс жауап", value: `${stats?.correctRate ?? 0}%`, icon: "🎯", grad: "from-rose-500 to-pink-500" },
+    { label: "Аяқталған тесттер", value: stats?.testsCompleted ?? 0, icon: FileCheck2, grad: "from-brand to-brand-light" },
+    { label: "Орташа балл", value: `${stats?.averageScore ?? 0}%`, icon: BarChart3, grad: "from-emerald-500 to-teal-500" },
+    { label: "Үздік нәтиже", value: `${stats?.bestScore ?? 0}%`, icon: Trophy, grad: "from-amber-500 to-orange-500" },
+    { label: "Дұрыс жауап", value: `${stats?.correctRate ?? 0}%`, icon: Target, grad: "from-rose-500 to-pink-500" },
   ];
 
   return (
@@ -92,8 +93,8 @@ export default function DashboardPage() {
       <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
         {metrics.map((m) => (
           <div key={m.label} className="card-interactive">
-            <div className={`flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br ${m.grad} text-xl text-white shadow-lg`}>
-              {m.icon}
+            <div className={`flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br ${m.grad} text-white shadow-lg`}>
+              <m.icon className="h-5 w-5" />
             </div>
             <p className="mt-3 text-2xl font-bold text-slate-900">
               {dataLoading ? "…" : m.value}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Sun, Moon } from "lucide-react";
 
 // Переключатель светлой/тёмной темы. Сохраняет выбор в localStorage.
 export function ThemeToggle({ className = "" }: { className?: string }) {
@@ -20,10 +21,10 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
     <button
       onClick={toggle}
       aria-label="Тақырыпты ауыстыру"
-      className={`flex h-9 w-9 items-center justify-center rounded-lg text-lg transition hover:bg-slate-100 ${className}`}
+      className={`flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 transition hover:bg-slate-100 ${className}`}
       title={dark ? "Күндізгі режим" : "Түнгі режим"}
     >
-      {dark ? "☀️" : "🌙"}
+      {dark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
     </button>
   );
 }

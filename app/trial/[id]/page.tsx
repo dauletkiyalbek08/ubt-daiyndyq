@@ -5,11 +5,11 @@ import { useEffect, useMemo, useState } from "react";
 import { TestRunner } from "@/components/TestRunner";
 import { useAuth } from "@/components/AuthProvider";
 import { api, ApiError, type ApiTestFull } from "@/lib/api";
+import { SubjectIcon } from "@/components/SubjectIcon";
 import {
   ENT_MANDATORY,
   ENT_MANDATORY_IDS,
   SPECIALTIES,
-  subjectIcon,
   subjectName,
   type Specialty,
 } from "@/lib/ent";
@@ -193,7 +193,7 @@ export default function TrialTakePage({ params }: { params: { id: string } }) {
             <div className="flex flex-wrap gap-3">
               {chosenSubjects.map((id) => (
                 <span key={id} className="inline-flex items-center gap-2 rounded-xl border border-brand/30 bg-brand/5 px-4 py-2 font-medium text-slate-800">
-                  <span className="text-xl">{subjectIcon(id)}</span>
+                  <SubjectIcon id={id} className="h-5 w-5 text-brand" />
                   {subjectName(id)}
                 </span>
               ))}

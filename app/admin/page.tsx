@@ -14,6 +14,7 @@ import {
 import { subjects } from "@/lib/mock-data";
 import { CreateTestForm } from "@/components/CreateTestForm";
 import { PlanEditor } from "@/components/PlanEditor";
+import { Wallet, Star, Users, FileText } from "lucide-react";
 
 type Tab = "stats" | "users" | "tests" | "plans";
 
@@ -166,13 +167,13 @@ export default function AdminPage() {
           {/* Ключевые метрики */}
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             {[
-              { label: "Доход (барлығы)", value: `${(stats?.revenue ?? 0).toLocaleString("ru-RU")} ₸`, icon: "💰", accent: "text-emerald-600" },
-              { label: "Белсенді жазылымдар", value: stats?.activeSubscriptions ?? 0, icon: "⭐", accent: "text-brand" },
-              { label: "Барлық пайдаланушы", value: stats?.totalUsers ?? 0, icon: "👥", accent: "text-brand" },
-              { label: "Тест тапсырулар", value: stats?.totalAttempts ?? 0, icon: "📝", accent: "text-brand" },
+              { label: "Доход (барлығы)", value: `${(stats?.revenue ?? 0).toLocaleString("ru-RU")} ₸`, icon: Wallet, accent: "text-emerald-600" },
+              { label: "Белсенді жазылымдар", value: stats?.activeSubscriptions ?? 0, icon: Star, accent: "text-brand" },
+              { label: "Барлық пайдаланушы", value: stats?.totalUsers ?? 0, icon: Users, accent: "text-brand" },
+              { label: "Тест тапсырулар", value: stats?.totalAttempts ?? 0, icon: FileText, accent: "text-brand" },
             ].map((m) => (
               <div key={m.label} className="card">
-                <div className="text-2xl">{m.icon}</div>
+                <m.icon className={`h-6 w-6 ${m.accent}`} />
                 <p className={`mt-2 text-2xl font-bold ${m.accent}`}>{m.value}</p>
                 <p className="text-sm text-slate-500">{m.label}</p>
               </div>

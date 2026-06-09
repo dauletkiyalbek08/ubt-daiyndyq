@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { api, type LeaderboardRow } from "@/lib/api";
 import { useAuth } from "@/components/AuthProvider";
 import { PageTitle } from "@/components/PageTitle";
+import { Flame, Star, Crown } from "lucide-react";
 
 const periods: { id: "week" | "month" | "all"; label: string }[] = [
   { id: "week", label: "Апта" },
@@ -150,12 +151,12 @@ export default function RatingPage() {
       {/* Мотивация */}
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
         {[
-          { icon: "🔥", title: "Топ-10 апта", text: "Апта сайын үздік оннан орын алыңыз" },
-          { icon: "⭐", title: "Топ-10 ай", text: "Ай бойынша көшбасшылар" },
-          { icon: "👑", title: "Топ-100 платформа", text: "Барлық уақыттағы үздіктер" },
+          { icon: Flame, title: "Топ-10 апта", text: "Апта сайын үздік оннан орын алыңыз" },
+          { icon: Star, title: "Топ-10 ай", text: "Ай бойынша көшбасшылар" },
+          { icon: Crown, title: "Топ-100 платформа", text: "Барлық уақыттағы үздіктер" },
         ].map((c) => (
           <div key={c.title} className="card text-center">
-            <div className="text-3xl">{c.icon}</div>
+            <c.icon className="mx-auto h-7 w-7 text-brand" />
             <h3 className="mt-2 font-semibold text-slate-900">{c.title}</h3>
             <p className="mt-1 text-sm text-slate-500">{c.text}</p>
           </div>

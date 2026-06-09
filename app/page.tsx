@@ -3,6 +3,8 @@ import { platformStats } from "@/lib/mock-data";
 import { ENT_PROFILE_SUBJECTS } from "@/lib/ent";
 import { Reveal } from "@/components/Reveal";
 import { PlansPreview } from "@/components/PlansPreview";
+import { SubjectIcon } from "@/components/SubjectIcon";
+import { GraduationCap, Library, Languages, Clock, BarChart3, Sparkles } from "lucide-react";
 
 const SUBJECT_COLORS = [
   "bg-blue-50 text-blue-600",
@@ -16,12 +18,12 @@ const SUBJECT_COLORS = [
 ];
 
 const advantages = [
-  { icon: "🎓", title: "Өзекті ҰБТ тапсырмалары", text: "Нақты ҰБТ форматына сәйкес жаңартылып отыратын тапсырмалар.", grad: "from-blue-500 to-indigo-500" },
-  { icon: "📚", title: "Үлкен тесттер базасы", text: "Барлық пәндер бойынша мыңдаған тест пен сұрақ.", grad: "from-emerald-500 to-teal-500" },
-  { icon: "🇰🇿", title: "Толық қазақ тілінде", text: "Барлық материалдар мен интерфейс қазақ тілінде.", grad: "from-sky-500 to-cyan-500" },
-  { icon: "⏰", title: "Кез келген уақытта", text: "Қалаған уақытта, қалаған жерде дайындалыңыз.", grad: "from-violet-500 to-purple-500" },
-  { icon: "📊", title: "Нәтижелер статистикасы", text: "Прогресіңізді бақылаңыз, әлсіз тақырыптарды табыңыз.", grad: "from-amber-500 to-orange-500" },
-  { icon: "✨", title: "Ыңғайлы интерфейс", text: "Қарапайым әрі заманауи дизайн, жылдам жүктелу.", grad: "from-rose-500 to-pink-500" },
+  { icon: GraduationCap, title: "Өзекті ҰБТ тапсырмалары", text: "Нақты ҰБТ форматына сәйкес жаңартылып отыратын тапсырмалар.", grad: "from-blue-500 to-indigo-500" },
+  { icon: Library, title: "Үлкен тесттер базасы", text: "Барлық пәндер бойынша мыңдаған тест пен сұрақ.", grad: "from-emerald-500 to-teal-500" },
+  { icon: Languages, title: "Толық қазақ тілінде", text: "Барлық материалдар мен интерфейс қазақ тілінде.", grad: "from-sky-500 to-cyan-500" },
+  { icon: Clock, title: "Кез келген уақытта", text: "Қалаған уақытта, қалаған жерде дайындалыңыз.", grad: "from-violet-500 to-purple-500" },
+  { icon: BarChart3, title: "Нәтижелер статистикасы", text: "Прогресіңізді бақылаңыз, әлсіз тақырыптарды табыңыз.", grad: "from-amber-500 to-orange-500" },
+  { icon: Sparkles, title: "Ыңғайлы интерфейс", text: "Қарапайым әрі заманауи дизайн, жылдам жүктелу.", grad: "from-rose-500 to-pink-500" },
 ];
 
 const steps = [
@@ -148,9 +150,9 @@ export default function HomePage() {
             <Reveal key={adv.title} delay={i * 80}>
               <div className="card-interactive group h-full">
                 <div
-                  className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${adv.grad} text-2xl text-white shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6`}
+                  className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${adv.grad} text-white shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6`}
                 >
-                  {adv.icon}
+                  <adv.icon className="h-6 w-6" />
                 </div>
                 <h3 className="mt-4 text-lg font-semibold text-slate-900">{adv.title}</h3>
                 <p className="mt-2 text-sm text-slate-600">{adv.text}</p>
@@ -179,9 +181,9 @@ export default function HomePage() {
                   className="card group flex items-center gap-3 p-4 transition-all duration-300 hover:-translate-y-1 hover:border-brand/30 hover:shadow-card-hover"
                 >
                   <span
-                    className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xl transition-transform duration-300 group-hover:scale-110 ${SUBJECT_COLORS[i % SUBJECT_COLORS.length]}`}
+                    className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110 ${SUBJECT_COLORS[i % SUBJECT_COLORS.length]}`}
                   >
-                    {subj.icon}
+                    <SubjectIcon id={subj.id} className="h-5 w-5" />
                   </span>
                   <span className="min-w-0 break-words text-sm font-medium leading-tight text-slate-800 group-hover:text-brand sm:text-base">
                     {subj.name}

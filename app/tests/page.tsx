@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { api, ApiError, type ApiTest } from "@/lib/api";
 import { subjects } from "@/lib/mock-data";
 import { PageTitle } from "@/components/PageTitle";
+import { SubjectIcon } from "@/components/SubjectIcon";
 
 const difficulties = ["Жеңіл", "Орташа", "Қиын"];
 const years = ["2024", "2023"];
@@ -121,8 +122,8 @@ export default function TestsPage() {
               return (
                 <div key={t.id} className="card flex flex-col transition hover:-translate-y-1 hover:shadow-lg">
                   <div className="flex items-center justify-between">
-                    <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-lg ${subj?.color ?? "bg-slate-100"}`}>
-                      {subj?.icon ?? "📘"}
+                    <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${subj?.color ?? "bg-slate-100 text-slate-500"}`}>
+                      <SubjectIcon id={t.subjectId} className="h-5 w-5" />
                     </span>
                     <span className={`badge ${difficultyColor[t.difficulty] ?? "bg-slate-100 text-slate-600"}`}>
                       {t.difficulty}

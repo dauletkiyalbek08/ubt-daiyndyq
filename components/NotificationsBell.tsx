@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { api, type NotifItem } from "@/lib/api";
+import { Bell, PartyPopper, Hourglass, Ban, FileText, type LucideIcon } from "lucide-react";
 
-const ICONS: Record<string, string> = {
-  payment: "🎉",
-  sub_ending: "⏳",
-  sub_ended: "⛔",
-  new_test: "📝",
+const ICONS: Record<string, LucideIcon> = {
+  payment: PartyPopper,
+  sub_ending: Hourglass,
+  sub_ended: Ban,
+  new_test: FileText,
 };
 
 export function NotificationsBell() {
@@ -45,10 +46,10 @@ export function NotificationsBell() {
     <div className="relative">
       <button
         onClick={toggle}
-        className="relative flex h-9 w-9 items-center justify-center rounded-lg text-lg transition hover:bg-slate-100"
+        className="relative flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 transition hover:bg-slate-100"
         aria-label="Хабарламалар"
       >
-        🔔
+        <Bell className="h-5 w-5" />
         {unread > 0 && (
           <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white">
             {unread > 9 ? "9+" : unread}
@@ -69,14 +70,16 @@ export function NotificationsBell() {
                   Хабарлама жоқ
                 </p>
               ) : (
-                items.map((n) => (
+                items.map((n) => {
+                  const NIcon = ICONS[n.type] ?? Bell;
+                  return (
                   <div
                     key={n.id}
                     className={`flex gap-3 border-b border-slate-50 px-4 py-3 ${
                       n.read ? "" : "bg-brand/5"
                     }`}
                   >
-                    <span className="text-xl">{ICONS[n.type] ?? "🔔"}</span>
+                    <NIcon className="mt-0.5 h-5 w-5 shrink-0 text-brand" />
                     <div>
                       <p className="text-sm font-medium text-slate-900">{n.title}</p>
                       <p className="text-xs text-slate-500">{n.message}</p>
@@ -85,7 +88,8 @@ export function NotificationsBell() {
                       </p>
                     </div>
                   </div>
-                ))
+                  );
+                })
               )}
             </div>
             <Link
