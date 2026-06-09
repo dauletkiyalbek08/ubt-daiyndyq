@@ -80,7 +80,7 @@ export default function ProfilePage() {
 
       {/* Сводка */}
       <div className="card mt-6 flex items-center gap-4">
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand text-xl font-bold text-white">
+        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-brand text-xl font-bold text-white">
           {user.firstName[0]}
           {user.lastName?.[0] ?? ""}
         </div>

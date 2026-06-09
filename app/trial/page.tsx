@@ -78,7 +78,7 @@ export default function TrialPage() {
                   className="card flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand/10 text-2xl">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-2xl">
                       {i === 0 ? "🆕" : "📋"}
                     </div>
                     <div>

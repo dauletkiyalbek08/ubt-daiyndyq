@@ -121,7 +121,7 @@ export default function TestsPage() {
               return (
                 <div key={t.id} className="card flex flex-col transition hover:-translate-y-1 hover:shadow-lg">
                   <div className="flex items-center justify-between">
-                    <span className={`flex h-10 w-10 items-center justify-center rounded-xl text-lg ${subj?.color ?? "bg-slate-100"}`}>
+                    <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-lg ${subj?.color ?? "bg-slate-100"}`}>
                       {subj?.icon ?? "📘"}
                     </span>
                     <span className={`badge ${difficultyColor[t.difficulty] ?? "bg-slate-100 text-slate-600"}`}>

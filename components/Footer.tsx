@@ -6,7 +6,7 @@ export function Footer() {
       <div className="container-page grid gap-8 py-12 sm:grid-cols-2 md:grid-cols-4">
         <div className="col-span-2 md:col-span-1">
           <Link href="/" className="group flex items-center gap-2 font-bold text-slate-900">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand to-brand-light text-white shadow-glow transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand to-brand-light text-white shadow-glow transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6">
               Ұ
             </span>
             <span className="text-lg">ҰБТ Дайындық</span>

@@ -53,7 +53,7 @@ export function Header() {
     >
       <div className="container-page flex h-16 items-center justify-between">
         <Link href="/" className="group flex items-center gap-2 font-bold text-slate-900">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand to-brand-light text-white shadow-glow transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand to-brand-light text-white shadow-glow transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6">
             Ұ
           </span>
           <span className="text-lg">ҰБТ Дайындық</span>
@@ -92,7 +92,7 @@ export function Header() {
                 </Link>
               )}
               <Link href="/dashboard" className="flex items-center gap-2 text-sm font-semibold text-slate-700 hover:text-brand">
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand text-xs text-white">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand text-xs text-white">
                   {user.firstName[0]}
                 </span>
                 {user.firstName}
