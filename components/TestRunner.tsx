@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { subjectName } from "@/lib/ent";
 import { PeriodicTable } from "@/components/PeriodicTable";
+import { List, LayoutGrid, Calculator as CalculatorIcon, Atom, Ruler, PartyPopper, ThumbsUp, Dumbbell } from "lucide-react";
 import type { ReviewItem, SubjectScore } from "@/lib/api";
 
 export type RunnerQuestion = {
@@ -113,7 +114,7 @@ export function TestRunner({
   // ---------- РЕЗУЛЬТАТ ----------
   if (result) {
     const subjects = (result.bySubject ?? []).filter((s) => s.subjectId !== "other");
-    const emoji = percent >= 70 ? "🎉" : percent >= 40 ? "👍" : "💪";
+    const ResultIcon = percent >= 70 ? PartyPopper : percent >= 40 ? ThumbsUp : Dumbbell;
     const message =
       percent >= 85 ? "Тамаша нәтиже! Осылай жалғастыр 🔥"
       : percent >= 70 ? "Жарайсың, жақсы жұмыс! 👏"
@@ -125,7 +126,7 @@ export function TestRunner({
           <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
           <div className="pointer-events-none absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
           <div className="relative">
-            <div className="text-5xl">{emoji}</div>
+            <ResultIcon className="mx-auto h-12 w-12" />
             <h1 className="mt-3 text-2xl font-bold">Тест аяқталды!</h1>
             <p className="mt-1 text-white/80">{title}</p>
 
@@ -177,11 +178,11 @@ export function TestRunner({
   // ---------- ПРОХОЖДЕНИЕ (полноэкранный ҰБТ-режим) ----------
   const q = questions[current];
   const tools = [
-    { id: "sections" as const, icon: "📚", label: "Бөлімдер" },
-    { id: "card" as const, icon: "🗂️", label: "Жауап картасы" },
-    { id: "calc" as const, icon: "🧮", label: "Калькулятор" },
-    { id: "table" as const, icon: "⚛️", label: "Менделеев" },
-    { id: "units" as const, icon: "📐", label: "Бірлік кестесі" },
+    { id: "sections" as const, icon: List, label: "Бөлімдер" },
+    { id: "card" as const, icon: LayoutGrid, label: "Жауап картасы" },
+    { id: "calc" as const, icon: CalculatorIcon, label: "Калькулятор" },
+    { id: "table" as const, icon: Atom, label: "Менделеев" },
+    { id: "units" as const, icon: Ruler, label: "Бірлік кестесі" },
   ];
 
   function nextSection() {
@@ -229,7 +230,7 @@ export function TestRunner({
           </div>
           {tools.map((t) => (
             <button key={t.id} onClick={() => setTool(t.id)} className="flex w-full flex-col items-center gap-0.5 rounded-lg px-1 py-2 text-slate-500 transition hover:bg-brand/5 hover:text-brand">
-              <span className="text-lg">{t.icon}</span>
+              <t.icon className="h-5 w-5" />
               <span className="text-center text-[9px] leading-tight">{t.label}</span>
             </button>
           ))}

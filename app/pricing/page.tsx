@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { api, type Plan } from "@/lib/api";
 import { PageTitle } from "@/components/PageTitle";
+import { Star, QrCode } from "lucide-react";
 
 type Billing = "quarter" | "year";
 
@@ -63,8 +64,8 @@ export default function PricingPage() {
             }`}
           >
             {plan.popular && (
-              <span className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gradient-to-r from-brand to-brand-light px-4 py-1 text-xs font-bold text-white shadow-glow">
-                ⭐ Танымал таңдау
+              <span className="absolute -top-3 left-1/2 inline-flex -translate-x-1/2 items-center gap-1 whitespace-nowrap rounded-full bg-gradient-to-r from-brand to-brand-light px-4 py-1 text-xs font-bold text-white shadow-glow">
+                <Star className="h-3.5 w-3.5" /> Танымал таңдау
               </span>
             )}
             <h3 className="text-xl font-bold text-slate-900">{plan.name}</h3>
@@ -144,7 +145,7 @@ export default function PricingPage() {
             </div>
 
             <div className="mt-5 flex flex-col items-center">
-              <div className="flex h-40 w-40 items-center justify-center rounded-xl border-2 border-dashed border-slate-300 text-5xl">📱</div>
+              <div className="flex h-40 w-40 items-center justify-center rounded-xl border-2 border-dashed border-slate-300 text-slate-400"><QrCode className="h-16 w-16" /></div>
               <p className="mt-3 text-center text-sm text-slate-500">Kaspi QR-ды сканерлеңіз немесе онлайн төлеңіз</p>
             </div>
 

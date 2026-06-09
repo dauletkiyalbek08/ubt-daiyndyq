@@ -8,6 +8,7 @@ import { useAuth } from "@/components/AuthProvider";
 import { api, PLAN_LABELS, type AchievementRow, type ResultRow, type UserStats } from "@/lib/api";
 import { subjectName } from "@/lib/ent";
 import { FileCheck2, BarChart3, Trophy, Target } from "lucide-react";
+import { AchievementIcon } from "@/components/AchievementIcon";
 
 type Analytics = {
   weekly: { label: string; value: number }[];
@@ -220,7 +221,7 @@ export default function DashboardPage() {
                   a.unlocked ? "bg-brand/5" : "bg-slate-50 opacity-40 grayscale"
                 }`}
               >
-                <span className="text-2xl">{a.icon}</span>
+                <AchievementIcon id={a.id} className={`h-6 w-6 ${a.unlocked ? "text-brand" : "text-slate-400"}`} />
                 <span className="mt-1 text-[10px] leading-tight text-slate-600">{a.title}</span>
               </div>
             ))}

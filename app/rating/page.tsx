@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { api, type LeaderboardRow } from "@/lib/api";
 import { useAuth } from "@/components/AuthProvider";
 import { PageTitle } from "@/components/PageTitle";
-import { Flame, Star, Crown } from "lucide-react";
+import { Flame, Star, Crown, Trophy, Medal } from "lucide-react";
 
 const periods: { id: "week" | "month" | "all"; label: string }[] = [
   { id: "week", label: "Апта" },
@@ -12,8 +12,11 @@ const periods: { id: "week" | "month" | "all"; label: string }[] = [
   { id: "all", label: "Барлық уақыт" },
 ];
 
-const medal = (rank: number) =>
-  rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : null;
+// Иконка места на подиуме (1 — кубок, 2/3 — медаль), цвет по месту
+function RankIcon({ rank }: { rank: number }) {
+  if (rank === 1) return <Trophy className="h-8 w-8 text-amber-400" />;
+  return <Medal className={`h-7 w-7 ${rank === 2 ? "text-slate-400" : "text-orange-400"}`} />;
+}
 const fmtDate = (iso: string) => new Date(iso).toLocaleDateString("ru-RU");
 const initials = (name: string) =>
   name.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase();
@@ -90,7 +93,7 @@ export default function RatingPage() {
               const isMe = user?.id === row.userId;
               return (
                 <div key={row.userId} className="flex flex-1 flex-col items-center">
-                  <div className="text-3xl sm:text-4xl">{medal(row.rank)}</div>
+                  <div className="flex justify-center"><RankIcon rank={row.rank} /></div>
                   <div
                     className={`mt-1 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br ${st.grad} text-lg font-bold text-white ring-4 ${st.ring} sm:h-16 sm:w-16`}
                   >

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
+import { AchievementIcon } from "@/components/AchievementIcon";
 import { api, type AchievementRow } from "@/lib/api";
 
 export default function AchievementsPage() {
@@ -59,11 +60,11 @@ export default function AchievementsPage() {
           {items.map((a) => (
             <div key={a.id} className={`card flex items-center gap-4 ${a.unlocked ? "" : "opacity-50"}`}>
               <div
-                className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-3xl ${
-                  a.unlocked ? "bg-brand/10" : "bg-slate-100 grayscale"
+                className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl ${
+                  a.unlocked ? "bg-brand/10 text-brand" : "bg-slate-100 text-slate-400"
                 }`}
               >
-                {a.icon}
+                <AchievementIcon id={a.id} className="h-7 w-7" />
               </div>
               <div>
                 <h3 className="font-semibold text-slate-900">{a.title}</h3>

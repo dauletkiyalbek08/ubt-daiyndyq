@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { api, type Plan } from "@/lib/api";
+import { Star } from "lucide-react";
 
 export function PlansPreview() {
   const [plans, setPlans] = useState<Plan[]>([]);
@@ -23,8 +24,8 @@ export function PlansPreview() {
           }`}
         >
           {plan.popular && (
-            <span className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gradient-to-r from-brand to-brand-light px-4 py-1 text-xs font-bold text-white shadow-glow">
-              ⭐ Танымал таңдау
+            <span className="absolute -top-3 left-1/2 inline-flex -translate-x-1/2 items-center gap-1 whitespace-nowrap rounded-full bg-gradient-to-r from-brand to-brand-light px-4 py-1 text-xs font-bold text-white shadow-glow">
+              <Star className="h-3.5 w-3.5" /> Танымал таңдау
             </span>
           )}
           <h3 className="text-xl font-bold text-slate-900">{plan.name}</h3>
