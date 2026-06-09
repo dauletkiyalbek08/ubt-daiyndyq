@@ -165,8 +165,12 @@ export function CreateTestForm({
     setImportMsg("Файл оқылуда...");
     try {
       const XLSX = await import("xlsx");
-      const buf = await file.arrayBuffer();
-      const wb = XLSX.read(buf, { type: "array" });
+      // CSV читаем строго как UTF-8 (иначе казахские/русские буквы ломаются),
+      // .xlsx — как бинарный массив (текст внутри уже UTF-8).
+      const isCsv = /\.csv$/i.test(file.name);
+      const wb = isCsv
+        ? XLSX.read(await file.text(), { type: "string" })
+        : XLSX.read(await file.arrayBuffer(), { type: "array" });
       const sheet = wb.Sheets[wb.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json<(string | number)[]>(sheet, {
         header: 1,
