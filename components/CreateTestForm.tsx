@@ -49,8 +49,9 @@ export function CreateTestForm({
 
   const [title, setTitle] = useState(editTest?.title ?? "");
   const [subjectId, setSubjectId] = useState(editTest?.subjectId ?? subjects[0].id);
-  const [difficulty, setDifficulty] = useState(editTest?.difficulty ?? "Орташа");
-  const [year, setYear] = useState(editTest?.year ?? 2024);
+  // Сложность и год убраны из интерфейса — задаём значения по умолчанию для бэкенда
+  const difficulty = editTest?.difficulty ?? "Орташа";
+  const year = editTest?.year ?? new Date().getFullYear();
   const [topic, setTopic] = useState(editTest?.topic ?? "");
   const [durationMin, setDurationMin] = useState(editTest?.durationMin ?? 30);
   const [isTrial, setIsTrial] = useState(editTest?.isTrial ?? false);
@@ -169,20 +170,8 @@ export function CreateTestForm({
           <input value={topic} onChange={(e) => setTopic(e.target.value)} required className="input-field" />
         </div>
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-slate-700">Күрделілік</label>
-          <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)} className="input-field">
-            <option>Жеңіл</option><option>Орташа</option><option>Қиын</option>
-          </select>
-        </div>
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-slate-700">Жыл</label>
-            <input type="number" value={year} onChange={(e) => setYear(Number(e.target.value))} className="input-field" />
-          </div>
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-slate-700">Уақыт (мин)</label>
-            <input type="number" value={durationMin} onChange={(e) => setDurationMin(Number(e.target.value))} className="input-field" />
-          </div>
+          <label className="mb-1.5 block text-sm font-medium text-slate-700">Уақыт (мин)</label>
+          <input type="number" value={durationMin} onChange={(e) => setDurationMin(Number(e.target.value))} className="input-field" />
         </div>
       </div>
 

@@ -8,19 +8,8 @@ import { PageTitle } from "@/components/PageTitle";
 import { SubjectIcon } from "@/components/SubjectIcon";
 import { FileText, Clock } from "lucide-react";
 
-const difficulties = ["Жеңіл", "Орташа", "Қиын"];
-const years = ["2024", "2023"];
-
-const difficultyColor: Record<string, string> = {
-  Жеңіл: "bg-emerald-50 text-emerald-600",
-  Орташа: "bg-amber-50 text-amber-600",
-  Қиын: "bg-rose-50 text-rose-600",
-};
-
 export default function TestsPage() {
   const [subject, setSubject] = useState("all");
-  const [difficulty, setDifficulty] = useState("all");
-  const [year, setYear] = useState("all");
   const [query, setQuery] = useState("");
   const [tests, setTests] = useState<ApiTest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -34,8 +23,6 @@ export default function TestsPage() {
       api
         .listTests({
           subject: subject === "all" ? undefined : subject,
-          difficulty: difficulty === "all" ? undefined : difficulty,
-          year: year === "all" ? undefined : year,
           q: query || undefined,
         })
         .then(setTests)
@@ -43,7 +30,7 @@ export default function TestsPage() {
         .finally(() => setLoading(false));
     }, 300);
     return () => clearTimeout(timer);
-  }, [subject, difficulty, year, query]);
+  }, [subject, query]);
 
   const subjectInfo = (id: string) => subjects.find((s) => s.id === id);
 
@@ -52,11 +39,11 @@ export default function TestsPage() {
       <PageTitle title="Тесттер" />
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-slate-900">Тесттер</h1>
-        <p className="mt-2 text-slate-600">Пән, күрделілік және жыл бойынша сүзіп, тест таңдаңыз</p>
+        <p className="mt-2 text-slate-600">Пән бойынша сүзіп, тест таңдаңыз</p>
       </div>
 
       <div className="card mb-8">
-        <div className="grid gap-4 md:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2">
           <div>
             <label className="mb-1.5 block text-sm font-medium text-slate-700">Пән</label>
             <select value={subject} onChange={(e) => setSubject(e.target.value)} className="input-field">
@@ -64,28 +51,6 @@ export default function TestsPage() {
               {subjects.map((s) => (
                 <option key={s.id} value={s.id}>
                   {s.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-slate-700">Күрделілік</label>
-            <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)} className="input-field">
-              <option value="all">Барлығы</option>
-              {difficulties.map((d) => (
-                <option key={d} value={d}>
-                  {d}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-slate-700">Жыл</label>
-            <select value={year} onChange={(e) => setYear(e.target.value)} className="input-field">
-              <option value="all">Барлық жылдар</option>
-              {years.map((y) => (
-                <option key={y} value={y}>
-                  {y}
                 </option>
               ))}
             </select>
@@ -122,17 +87,12 @@ export default function TestsPage() {
               const subj = subjectInfo(t.subjectId);
               return (
                 <div key={t.id} className="card flex flex-col transition hover:-translate-y-1 hover:shadow-lg">
-                  <div className="flex items-center justify-between">
-                    <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${subj?.color ?? "bg-slate-100 text-slate-500"}`}>
-                      <SubjectIcon id={t.subjectId} className="h-5 w-5" />
-                    </span>
-                    <span className={`badge ${difficultyColor[t.difficulty] ?? "bg-slate-100 text-slate-600"}`}>
-                      {t.difficulty}
-                    </span>
-                  </div>
+                  <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${subj?.color ?? "bg-slate-100 text-slate-500"}`}>
+                    <SubjectIcon id={t.subjectId} className="h-5 w-5" />
+                  </span>
                   <h3 className="mt-4 text-lg font-semibold text-slate-900">{t.title}</h3>
                   <p className="mt-1 text-sm text-slate-500">
-                    {subj?.name ?? t.subjectId} · {t.topic} · {t.year}
+                    {subj?.name ?? t.subjectId} · {t.topic}
                   </p>
                   <div className="mt-4 flex gap-4 text-sm text-slate-500">
                     <span className="inline-flex items-center gap-1"><FileText className="h-4 w-4" /> {t.questionsCount ?? 0} сұрақ</span>
