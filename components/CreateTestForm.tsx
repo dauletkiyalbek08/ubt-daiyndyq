@@ -3,7 +3,20 @@
 import { useState } from "react";
 import { api, type ApiTestFull } from "@/lib/api";
 import { subjects } from "@/lib/mock-data";
-import { ALL_SUBJECTS } from "@/lib/ent";
+import { ALL_SUBJECTS, SUBJECTS } from "@/lib/ent";
+
+// Карта: код или название предмета (в любом регистре) → код предмета.
+// Позволяет писать в таблице «Биология» или «biology», а также брать предмет
+// из названия листа Excel.
+const SUBJECT_BY_NAME: Record<string, string> = (() => {
+  const m: Record<string, string> = {};
+  Object.entries(SUBJECTS).forEach(([code, v]) => {
+    m[code.toLowerCase()] = code;
+    m[v.name.toLowerCase()] = code;
+  });
+  return m;
+})();
+const subjectCode = (s: string) => SUBJECT_BY_NAME[(s ?? "").trim().toLowerCase()];
 
 type QType = "single" | "context" | "matching" | "multiple";
 
@@ -102,7 +115,7 @@ export function CreateTestForm({
     const cells = cellsRaw.map((c) => String(c ?? "").trim());
     while (cells.length && cells[cells.length - 1] === "") cells.pop();
     if (cells.length < 4) return null;
-    const subject = cells[0];
+    const subject = subjectCode(cells[0]) ?? cells[0];
     const text = cells[1];
     const correctRaw = cells[cells.length - 1];
     const options = cells.slice(2, cells.length - 1);
@@ -171,19 +184,30 @@ export function CreateTestForm({
       const wb = isCsv
         ? XLSX.read(await file.text(), { type: "string" })
         : XLSX.read(await file.arrayBuffer(), { type: "array" });
-      const sheet = wb.Sheets[wb.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json<(string | number)[]>(sheet, {
-        header: 1,
-        blankrows: false,
-      });
+
       const parsed: QForm[] = [];
       let skipped = 0;
-      rows.forEach((row, idx) => {
-        const cells = Array.isArray(row) ? row : [];
-        if (idx === 0 && isHeader(String(cells[0] ?? ""))) return;
-        const q = rowToQuestion(cells);
-        if (q) parsed.push(q);
-        else if (cells.some((c) => String(c ?? "").trim())) skipped++;
+      // Читаем ВСЕ листы. Предмет берём из колонки, либо из названия листа.
+      wb.SheetNames.forEach((sheetName) => {
+        const sheet = wb.Sheets[sheetName];
+        const rows = XLSX.utils.sheet_to_json<(string | number)[]>(sheet, {
+          header: 1,
+          blankrows: false,
+        });
+        const sheetSubj = subjectCode(sheetName); // напр. лист «Биология» → biology
+        rows.forEach((row, idx) => {
+          const cells = (Array.isArray(row) ? row : []).map((c) => String(c ?? ""));
+          if (cells.every((c) => !c.trim())) return;
+          if (idx === 0 && isHeader(cells[0])) return;
+          // если первая ячейка — предмет, формат «предмет|вопрос|…», иначе берём предмет листа
+          const q = subjectCode(cells[0])
+            ? rowToQuestion(cells)
+            : sheetSubj
+            ? rowToQuestion([sheetSubj, ...cells])
+            : rowToQuestion(cells);
+          if (q) parsed.push(q);
+          else skipped++;
+        });
       });
       applyParsed(parsed, skipped);
     } catch {
@@ -439,9 +463,13 @@ export function CreateTestForm({
         <button type="button" onClick={() => setQuestions((qs) => [...qs, emptyQuestion()])} className="btn-secondary w-full text-sm">+ Сұрақ қосу</button>
       </div>
 
-      <button type="submit" disabled={saving} className="btn-primary w-full disabled:opacity-60">
-        {saving ? "Сақталуда..." : isEdit ? "Өзгерістерді сақтау" : "Тестті сақтау"}
-      </button>
+      {/* Закреплённая панель сохранения — видна при прокрутке длинного теста */}
+      <div className="sticky bottom-0 -mx-6 -mb-6 flex items-center justify-between gap-3 border-t border-slate-200 bg-white/90 px-6 py-3 backdrop-blur">
+        <span className="text-sm font-medium text-slate-600">{questions.length} сұрақ</span>
+        <button type="submit" disabled={saving} className="btn-primary px-8 disabled:opacity-60">
+          {saving ? "Сақталуда..." : isEdit ? "Өзгерістерді сақтау" : "Тестті сақтау"}
+        </button>
+      </div>
     </form>
   );
 }
