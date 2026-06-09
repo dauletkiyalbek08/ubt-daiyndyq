@@ -109,7 +109,9 @@ export function CreateTestForm({
     const parsed: QForm[] = [];
     let skipped = 0;
     lines.forEach((line, idx) => {
-      const cells = line.split("\t").map((c) => c.trim());
+      // Из Excel/Sheets ячейки разделены Tab; для ручной вставки поддерживаем «|»
+      const sep = line.includes("\t") ? "\t" : "|";
+      const cells = line.split(sep).map((c) => c.trim());
       while (cells.length && cells[cells.length - 1] === "") cells.pop();
       // пропускаем строку-заголовок
       if (idx === 0 && /предмет|пән|subject/i.test(cells[0] ?? "")) return;
