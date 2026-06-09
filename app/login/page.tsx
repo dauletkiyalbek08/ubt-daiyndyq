@@ -6,6 +6,7 @@ import { useState } from "react";
 import { AuthShell } from "@/components/AuthShell";
 import { SocialAuth } from "@/components/SocialAuth";
 import { useAuth } from "@/components/AuthProvider";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -79,18 +80,16 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => setShowPassword((v) => !v)}
+              aria-label={showPassword ? "Жасыру" : "Көрсету"}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
             >
-              {showPassword ? "🙈" : "👁️"}
+              {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
             </button>
           </div>
         </div>
         <button type="submit" disabled={loading} className="btn-primary w-full disabled:opacity-60">
           {loading ? "Кіруде..." : "Кіру"}
         </button>
-        <p className="text-center text-xs text-slate-400">
-          Әкімші демо: admin / admin
-        </p>
       </form>
     </AuthShell>
   );

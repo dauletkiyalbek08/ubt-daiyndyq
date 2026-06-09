@@ -33,21 +33,24 @@ export class AuthService implements OnModuleInit {
     private readonly config: ConfigService
   ) {}
 
-  // При первом запуске (в т.ч. в облаке) создаём админа, если его нет
+  // При первом запуске (в т.ч. в облаке) создаём админа, если его нет.
+  // Логин/пароль берём из переменных окружения; локально по умолчанию admin/admin.
   async onModuleInit() {
     const admins = await this.users.count({ where: { role: "admin" } });
     if (admins === 0) {
+      const email = this.config.get<string>("ADMIN_EMAIL") ?? "admin";
+      const password = this.config.get<string>("ADMIN_PASSWORD") ?? "admin";
       const admin = this.users.create({
         firstName: "Админ",
         lastName: "",
-        email: "admin",
-        passwordHash: await bcrypt.hash("admin", 10),
+        email,
+        passwordHash: await bcrypt.hash(password, 10),
         role: "admin",
         provider: "local",
       });
       await this.users.save(admin);
       // eslint-disable-next-line no-console
-      console.log("✓ Админ құрылды: логин=admin, пароль=admin");
+      console.log(`✓ Админ құрылды: логин=${email}`);
     }
   }
 
