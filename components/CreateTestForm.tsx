@@ -77,9 +77,78 @@ export function CreateTestForm({
   );
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [importText, setImportText] = useState("");
+  const [importMsg, setImportMsg] = useState("");
 
   const upd = (i: number, patch: Partial<QForm>) =>
     setQuestions((qs) => qs.map((q, idx) => (idx === i ? { ...q, ...patch } : q)));
+
+  // Буквы/цифры правильных ответов → индексы: "B" → [1], "A,C" → [0,2]
+  function answersToIdx(raw: string): number[] {
+    return raw
+      .split(/[,;\s]+/)
+      .filter(Boolean)
+      .map((tok) => {
+        const up = tok.toUpperCase();
+        if (/^[A-H]$/.test(up)) return up.charCodeAt(0) - 65;
+        const n = parseInt(tok, 10);
+        return Number.isNaN(n) ? -1 : n - 1; // допускаем номера (1 = A)
+      })
+      .filter((i) => i >= 0);
+  }
+
+  // Импорт вопросов из вставленной таблицы (Tab между ячейками).
+  // Колонки: предмет | вопрос | A | B | C | … | дұрыс (последняя колонка)
+  function parseImport() {
+    setImportMsg("");
+    const lines = importText.split(/\r?\n/).filter((l) => l.trim() !== "");
+    if (lines.length === 0) {
+      setImportMsg("Кірістіретін жол жоқ");
+      return;
+    }
+    const parsed: QForm[] = [];
+    let skipped = 0;
+    lines.forEach((line, idx) => {
+      const cells = line.split("\t").map((c) => c.trim());
+      while (cells.length && cells[cells.length - 1] === "") cells.pop();
+      // пропускаем строку-заголовок
+      if (idx === 0 && /предмет|пән|subject/i.test(cells[0] ?? "")) return;
+      if (cells.length < 4) {
+        skipped++;
+        return;
+      }
+      const subject = cells[0];
+      const text = cells[1];
+      const correctRaw = cells[cells.length - 1];
+      const options = cells.slice(2, cells.length - 1);
+      const correctIdx = answersToIdx(correctRaw).filter((i) => i < options.length);
+      if (options.length < 2 || correctIdx.length === 0) {
+        skipped++;
+        return;
+      }
+      const isMulti = correctIdx.length > 1;
+      parsed.push({
+        ...emptyQuestion(),
+        type: isMulti ? "multiple" : "single",
+        text,
+        options,
+        correctIndex: isMulti ? 0 : correctIdx[0],
+        correctIndexes: isMulti ? correctIdx : [],
+        points: isMulti ? 3 : 1,
+        subject,
+      });
+    });
+    if (parsed.length === 0) {
+      setImportMsg("Қате: бірде-бір жол танылмады (бағандарды тексеріңіз)");
+      return;
+    }
+    setQuestions((qs) => {
+      const onlyEmpty = qs.length === 1 && qs[0].text.trim() === "" && qs[0].options.every((o) => !o.trim());
+      return onlyEmpty ? parsed : [...qs, ...parsed];
+    });
+    setImportText("");
+    setImportMsg(`✓ ${parsed.length} сұрақ қосылды${skipped ? ` · ${skipped} жол өткізілді` : ""}`);
+  }
 
   async function handleImage(qi: number, file?: File) {
     if (!file) return;
@@ -189,6 +258,29 @@ export function CreateTestForm({
             {!isEdit && <input type="datetime-local" value={publishAt} onChange={(e) => setPublishAt(e.target.value)} className="input-field" />}
           </div>
         )}
+      </div>
+
+      {/* Импорт из Excel */}
+      <div className="rounded-xl border border-slate-200 bg-surface p-4">
+        <h4 className="font-semibold text-slate-900">Excel-ден импорт</h4>
+        <p className="mt-1 text-xs text-slate-500">
+          Бағандар (Tab арқылы, Excel/Sheets-тен көшіріп қойыңыз):{" "}
+          <b>предмет · сұрақ · A · B · C · D · … · дұрыс</b>. «Дұрыс» — соңғы баған
+          (бір әріп: <code>B</code>; бірнеше жауап: <code>A,C</code>).
+        </p>
+        <textarea
+          value={importText}
+          onChange={(e) => setImportText(e.target.value)}
+          rows={5}
+          className="input-field mt-2 font-mono text-xs"
+          placeholder={"history\tҚазақ хандығы қашан құрылды?\t1456\t1465\t1470\t1480\tB"}
+        />
+        <div className="mt-2 flex items-center gap-3">
+          <button type="button" onClick={parseImport} className="btn-secondary text-sm">
+            Қосу
+          </button>
+          {importMsg && <span className="text-xs text-slate-600">{importMsg}</span>}
+        </div>
       </div>
 
       {/* Вопросы */}
