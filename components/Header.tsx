@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { NotificationsBell } from "@/components/NotificationsBell";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Avatar } from "@/components/Avatar";
 
 const navLinks = [
   { href: "/tests", label: "Тесттер" },
@@ -92,9 +93,7 @@ export function Header() {
                 </Link>
               )}
               <Link href="/dashboard" className="flex items-center gap-2 text-sm font-semibold text-slate-700 hover:text-brand">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand text-xs text-white">
-                  {user.firstName[0]}
-                </span>
+                <Avatar name={`${user.firstName} ${user.lastName ?? ""}`} avatarUrl={user.avatarUrl} className="h-8 w-8" textClass="text-xs" />
                 {user.firstName}
               </Link>
               <button onClick={handleLogout} className="text-sm font-semibold text-slate-500 hover:text-rose-600">

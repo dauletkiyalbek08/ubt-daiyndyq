@@ -97,6 +97,7 @@ export type AuthUser = {
   email: string;
   phone?: string;
   role: "user" | "admin";
+  avatarUrl?: string | null; // фото из Google/Telegram
   plan?: string; // free | standard | premium
   planPeriod?: string | null; // quarter | year
   planEndsAt?: string | null;

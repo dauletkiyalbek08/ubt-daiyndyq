@@ -9,6 +9,7 @@ import { api, PLAN_LABELS, type AchievementRow, type ResultRow, type UserStats }
 import { subjectName } from "@/lib/ent";
 import { FileCheck2, BarChart3, Trophy, Target, TrendingUp, TrendingDown } from "lucide-react";
 import { AchievementIcon } from "@/components/AchievementIcon";
+import { Avatar } from "@/components/Avatar";
 
 type Analytics = {
   weekly: { label: string; value: number }[];
@@ -62,10 +63,12 @@ export default function DashboardPage() {
     <div className="container-page py-10">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-brand text-xl font-bold text-white">
-            {user.firstName[0]}
-            {user.lastName[0]}
-          </div>
+          <Avatar
+            name={`${user.firstName} ${user.lastName ?? ""}`}
+            avatarUrl={user.avatarUrl}
+            className="h-14 w-14"
+            textClass="text-xl"
+          />
           <div>
             <h1 className="text-2xl font-bold text-slate-900">Сәлем, {user.firstName}! 👋</h1>
             <p className="text-sm text-slate-500">{user.email}</p>

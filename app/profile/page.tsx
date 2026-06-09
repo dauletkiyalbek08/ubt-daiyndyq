@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
+import { Avatar } from "@/components/Avatar";
 import { api, ApiError, PLAN_LABELS } from "@/lib/api";
 
 export default function ProfilePage() {
@@ -80,10 +81,12 @@ export default function ProfilePage() {
 
       {/* Сводка */}
       <div className="card mt-6 flex items-center gap-4">
-        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-brand text-xl font-bold text-white">
-          {user.firstName[0]}
-          {user.lastName?.[0] ?? ""}
-        </div>
+        <Avatar
+          name={`${user.firstName} ${user.lastName ?? ""}`}
+          avatarUrl={user.avatarUrl}
+          className="h-14 w-14"
+          textClass="text-xl"
+        />
         <div>
           <p className="font-semibold text-slate-900">
             {user.firstName} {user.lastName}
