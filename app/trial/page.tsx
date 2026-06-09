@@ -51,7 +51,7 @@ export default function TrialPage() {
                 </p>
                 <Link
                   href="/pricing"
-                  style={{ backgroundColor: "#ffffff", color: "#2563EB" }}
+                  style={{ backgroundColor: "#ffffff", color: "#0D9488" }}
                   className="mt-4 inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold shadow transition hover:-translate-y-0.5"
                 >
                   Тариф таңдау →

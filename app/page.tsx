@@ -39,7 +39,7 @@ export default function HomePage() {
         {/* Декоративный фон: сетка + плавающие градиентные пятна */}
         <div className="pointer-events-none absolute inset-0 bg-grid-slate [background-size:40px_40px]" />
         <div className="pointer-events-none absolute -left-24 -top-24 h-80 w-80 rounded-full bg-brand/20 blur-3xl animate-float-slow" />
-        <div className="pointer-events-none absolute -right-20 top-20 h-72 w-72 rounded-full bg-sky-400/20 blur-3xl animate-float" />
+        <div className="pointer-events-none absolute -right-20 top-20 h-72 w-72 rounded-full bg-emerald-400/20 blur-3xl animate-float" />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-surface" />
 
         <div className="container-page relative grid items-center gap-12 py-16 md:grid-cols-2 md:py-28">
@@ -247,7 +247,7 @@ export default function HomePage() {
             </p>
             <Link
               href="/register"
-              style={{ backgroundColor: "#ffffff", color: "#2563EB" }}
+              style={{ backgroundColor: "#ffffff", color: "#0D9488" }}
               className="relative mt-8 inline-flex items-center justify-center gap-2 rounded-xl px-8 py-3.5 font-semibold shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0"
             >
               Тегін тіркелу →

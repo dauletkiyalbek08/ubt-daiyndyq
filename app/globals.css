@@ -35,7 +35,7 @@ body {
 
 /* Выделение текста */
 ::selection {
-  background: rgba(37, 99, 235, 0.18);
+  background: rgba(13, 148, 136, 0.18);
   color: #1e293b;
 }
 
@@ -141,8 +141,8 @@ body {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 10px 30px rgba(0, 0, 0, 0.25);
 }
 .dark .card-interactive:hover {
-  border-color: rgba(59, 130, 246, 0.45);
-  box-shadow: 0 8px 30px rgba(37, 99, 235, 0.22);
+  border-color: rgba(45, 212, 191, 0.45);
+  box-shadow: 0 8px 30px rgba(13, 148, 136, 0.22);
 }
 .dark .input-field {
   background-color: #0d1526;

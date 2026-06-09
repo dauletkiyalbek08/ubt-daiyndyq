@@ -10,9 +10,9 @@ const config: Config = {
     extend: {
       colors: {
         brand: {
-          DEFAULT: "#2563EB",
-          light: "#3B82F6",
-          dark: "#1D4ED8",
+          DEFAULT: "#0D9488",
+          light: "#2DD4BF",
+          dark: "#0F766E",
         },
         surface: "#F8FAFC",
       },
@@ -21,8 +21,8 @@ const config: Config = {
       },
       boxShadow: {
         card: "0 1px 3px rgba(15,23,42,0.06), 0 8px 24px rgba(15,23,42,0.06)",
-        "card-hover": "0 8px 30px rgba(37,99,235,0.12), 0 2px 8px rgba(15,23,42,0.08)",
-        glow: "0 0 0 1px rgba(37,99,235,0.1), 0 10px 40px -10px rgba(37,99,235,0.35)",
+        "card-hover": "0 8px 30px rgba(13,148,136,0.12), 0 2px 8px rgba(15,23,42,0.08)",
+        glow: "0 0 0 1px rgba(13,148,136,0.1), 0 10px 40px -10px rgba(13,148,136,0.35)",
       },
       backgroundImage: {
         "grid-slate":
