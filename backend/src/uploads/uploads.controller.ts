@@ -18,6 +18,23 @@ const UPLOAD_DIR = process.env.UPLOAD_DIR ?? "./uploads";
 if (!existsSync(UPLOAD_DIR)) mkdirSync(UPLOAD_DIR, { recursive: true });
 
 const ALLOWED = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"];
+// Документы для раздела «Обучение»: презентации и книги (PDF).
+const ALLOWED_DOCS = [".pdf"];
+
+// Сохранение с уникальным именем (общая настройка для всех загрузок).
+const storage = diskStorage({
+  destination: UPLOAD_DIR,
+  filename: (_req, file, cb) => {
+    const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+    cb(null, `${unique}${extname(file.originalname).toLowerCase()}`);
+  },
+});
+
+// Публичная ссылка на файл по его имени.
+function fileUrl(filename: string) {
+  const base = process.env.BACKEND_URL ?? "http://localhost:4000";
+  return { url: `${base}/uploads/${filename}` };
+}
 
 @UseGuards(JwtAuthGuard, AdminGuard)
 @AdminOnly()
@@ -27,13 +44,7 @@ export class UploadsController {
   @Post()
   @UseInterceptors(
     FileInterceptor("file", {
-      storage: diskStorage({
-        destination: UPLOAD_DIR,
-        filename: (_req, file, cb) => {
-          const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-          cb(null, `${unique}${extname(file.originalname).toLowerCase()}`);
-        },
-      }),
+      storage,
       limits: { fileSize: 5 * 1024 * 1024 }, // до 5 МБ
       fileFilter: (_req, file, cb) => {
         const ok = ALLOWED.includes(extname(file.originalname).toLowerCase());
@@ -43,7 +54,23 @@ export class UploadsController {
   )
   upload(@UploadedFile() file: { filename: string }) {
     if (!file) throw new BadRequestException("Файл табылмады");
-    const base = process.env.BACKEND_URL ?? "http://localhost:4000";
-    return { url: `${base}/uploads/${file.filename}` };
+    return fileUrl(file.filename);
+  }
+
+  // Загрузка PDF-документа (презентация/книга) для раздела «Обучение». Поле: "file".
+  @Post("doc")
+  @UseInterceptors(
+    FileInterceptor("file", {
+      storage,
+      limits: { fileSize: 25 * 1024 * 1024 }, // до 25 МБ
+      fileFilter: (_req, file, cb) => {
+        const ok = ALLOWED_DOCS.includes(extname(file.originalname).toLowerCase());
+        cb(ok ? null : new BadRequestException("Тек PDF файлдары рұқсат етілген"), ok);
+      },
+    })
+  )
+  uploadDoc(@UploadedFile() file: { filename: string }) {
+    if (!file) throw new BadRequestException("Файл табылмады");
+    return fileUrl(file.filename);
   }
 }

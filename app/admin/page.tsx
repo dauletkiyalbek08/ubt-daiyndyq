@@ -14,9 +14,10 @@ import {
 import { subjects } from "@/lib/mock-data";
 import { CreateTestForm } from "@/components/CreateTestForm";
 import { PlanEditor } from "@/components/PlanEditor";
+import { LearnManager } from "@/components/LearnManager";
 import { Wallet, Star, Users, FileText, Clock, Trash2 } from "lucide-react";
 
-type Tab = "stats" | "users" | "tests" | "plans";
+type Tab = "stats" | "users" | "tests" | "learn" | "plans";
 
 type AdminStats = {
   totalUsers: number;
@@ -137,6 +138,7 @@ export default function AdminPage() {
     { id: "stats", label: "Статистика" },
     { id: "users", label: `Пайдаланушылар (${users.length})` },
     { id: "tests", label: `Тесттер (${tests.length})` },
+    { id: "learn", label: "Оқу (тарау/тақырып)" },
     { id: "plans", label: "Тарифтер" },
   ];
 
@@ -421,6 +423,9 @@ export default function AdminPage() {
           </div>
         </div>
       )}
+
+      {/* Обучение: тарау и темы */}
+      {tab === "learn" && <LearnManager />}
 
       {/* Тарифы */}
       {tab === "plans" && (

@@ -9,6 +9,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { Avatar } from "@/components/Avatar";
 
 const navLinks = [
+  { href: "/learn", label: "Сабақтар" },
   { href: "/tests", label: "Тесттер" },
   { href: "/trial", label: "Пробное ҰБТ" },
   { href: "/rating", label: "Рейтинг" },

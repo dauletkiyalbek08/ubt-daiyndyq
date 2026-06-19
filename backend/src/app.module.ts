@@ -9,6 +9,8 @@ import { Result } from "./entities/result.entity";
 import { Subscription } from "./entities/subscription.entity";
 import { Notification } from "./entities/notification.entity";
 import { Plan } from "./entities/plan.entity";
+import { Tarau } from "./entities/tarau.entity";
+import { Topic } from "./entities/topic.entity";
 import { AuthModule } from "./auth/auth.module";
 import { TestsModule } from "./tests/tests.module";
 import { ResultsModule } from "./results/results.module";
@@ -20,6 +22,7 @@ import { NotificationsModule } from "./notifications/notifications.module";
 import { TasksModule } from "./tasks/tasks.module";
 import { AdminModule } from "./admin/admin.module";
 import { PlansModule } from "./plans/plans.module";
+import { LearnModule } from "./learn/learn.module";
 
 @Module({
   imports: [
@@ -29,7 +32,7 @@ import { PlansModule } from "./plans/plans.module";
       inject: [ConfigService],
       useFactory: (config: ConfigService): any => {
         const url = config.get<string>("DATABASE_URL");
-        const entities = [User, Test, Question, Result, Subscription, Notification, Plan];
+        const entities = [User, Test, Question, Result, Subscription, Notification, Plan, Tarau, Topic];
         // В облаке (Railway/Render) база подключается через DATABASE_URL + SSL.
         if (url) {
           // Railway internal база — без SSL; внешние (Render и т.п.) — с SSL
@@ -66,6 +69,7 @@ import { PlansModule } from "./plans/plans.module";
     TasksModule,
     AdminModule,
     PlansModule,
+    LearnModule,
   ],
 })
 export class AppModule {}

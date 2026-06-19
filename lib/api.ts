@@ -232,6 +232,70 @@ export type NotifItem = {
   createdAt: string;
 };
 
+// ---- Обучение (тарау → темы) ----
+export type TopicMaterial = { title: string; url: string };
+
+// Состояние темы для ученика: открыта / пройдена / заблокирована
+export type TopicState = "completed" | "open" | "locked";
+
+export type LearnTopic = {
+  id: string;
+  title: string;
+  order: number;
+  hasPresentation: boolean;
+  materialsCount: number;
+  hasTest: boolean;
+  passPercent: number;
+  bestPercent: number | null;
+  state: TopicState;
+};
+
+export type LearnTarau = {
+  id: string;
+  title: string;
+  order: number;
+  topics: LearnTopic[];
+};
+
+export type LearnOverview = { hasAccess: boolean; tarautar: LearnTarau[] };
+
+// Полная тема (детали для ученика и для админки)
+export type ApiTopic = {
+  id: string;
+  tarauId: string;
+  title: string;
+  order: number;
+  presentationUrl: string | null;
+  materials: TopicMaterial[] | null;
+  testId: string | null;
+  passPercent: number;
+  createdAt?: string;
+};
+
+export type ApiTarau = {
+  id: string;
+  subjectId: string;
+  title: string;
+  order: number;
+  createdAt?: string;
+  topics: ApiTopic[];
+};
+
+export type TopicDetail = {
+  id: string;
+  tarauId: string;
+  tarauTitle: string;
+  subjectId: string;
+  title: string;
+  order: number;
+  presentationUrl: string | null;
+  materials: TopicMaterial[];
+  testId: string | null;
+  passPercent: number;
+  bestPercent: number | null;
+  passed: boolean;
+};
+
 // ---- Методы API ----
 export const api = {
   // Авторизация
@@ -416,30 +480,80 @@ export const api = {
     request<{ success: boolean }>(`/tests/${id}`, { method: "DELETE" }),
 
   // Загрузка картинки (multipart). Возвращает { url } — полный адрес файла.
-  uploadImage: async (file: File): Promise<{ url: string }> => {
-    const token = getToken();
-    const form = new FormData();
-    form.append("file", file);
-    let res: Response;
-    try {
-      res = await fetch(`${API_URL}/uploads`, {
-        method: "POST",
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-        body: form,
-      });
-    } catch {
-      throw new ApiError("Серверге қосыла алмадық (порт 4000)", 0);
+  uploadImage: (file: File) => uploadFile("/uploads", file),
+
+  // Загрузка PDF-документа (презентация/книга) для раздела «Обучение».
+  uploadDoc: (file: File) => uploadFile("/uploads/doc", file),
+
+  // ---- Обучение ----
+  // Структура предмета для ученика (темы с замками/прогрессом)
+  learnOverview: (subject: string) =>
+    request<LearnOverview>(`/learn?subject=${encodeURIComponent(subject)}`),
+
+  // Детали темы (презентация + книги + тест)
+  learnTopic: (id: string) => request<TopicDetail>(`/learn/topics/${id}`),
+
+  // Админ: полная структура предмета (тарау + темы)
+  learnManage: (subject: string) =>
+    request<ApiTarau[]>(`/learn/manage?subject=${encodeURIComponent(subject)}`),
+
+  // Админ: тарау (главы)
+  createTarau: (body: { subjectId: string; title: string; order?: number }) =>
+    request<ApiTarau>("/learn/tarau", { method: "POST", body: JSON.stringify(body) }),
+  updateTarau: (id: string, body: { title?: string; order?: number }) =>
+    request<ApiTarau>(`/learn/tarau/${id}`, { method: "PATCH", body: JSON.stringify(body) }),
+  deleteTarau: (id: string) =>
+    request<{ success: boolean }>(`/learn/tarau/${id}`, { method: "DELETE" }),
+
+  // Админ: темы
+  createTopic: (body: {
+    tarauId: string;
+    title: string;
+    order?: number;
+    presentationUrl?: string | null;
+    materials?: TopicMaterial[] | null;
+    testId?: string | null;
+    passPercent?: number;
+  }) => request<ApiTopic>("/learn/topics", { method: "POST", body: JSON.stringify(body) }),
+  updateTopic: (
+    id: string,
+    body: {
+      title?: string;
+      order?: number;
+      presentationUrl?: string | null;
+      materials?: TopicMaterial[] | null;
+      testId?: string | null;
+      passPercent?: number;
     }
-    if (!res.ok) {
-      let message = `Жүктеу қатесі (${res.status})`;
-      try {
-        const data = await res.json();
-        message = data.message ?? message;
-      } catch {
-        /* ignore */
-      }
-      throw new ApiError(message, res.status);
-    }
-    return res.json();
-  },
+  ) => request<ApiTopic>(`/learn/topics/${id}`, { method: "PATCH", body: JSON.stringify(body) }),
+  deleteTopic: (id: string) =>
+    request<{ success: boolean }>(`/learn/topics/${id}`, { method: "DELETE" }),
 };
+
+// Общая загрузка файла (картинка или PDF) через multipart. Возвращает { url }.
+async function uploadFile(path: string, file: File): Promise<{ url: string }> {
+  const token = getToken();
+  const form = new FormData();
+  form.append("file", file);
+  let res: Response;
+  try {
+    res = await fetch(`${API_URL}${path}`, {
+      method: "POST",
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: form,
+    });
+  } catch {
+    throw new ApiError("Серверге қосыла алмадық (порт 4000)", 0);
+  }
+  if (!res.ok) {
+    let message = `Жүктеу қатесі (${res.status})`;
+    try {
+      const data = await res.json();
+      message = data.message ?? message;
+    } catch {
+      /* ignore */
+    }
+    throw new ApiError(message, res.status);
+  }
+  return res.json();
+}
