@@ -7,7 +7,6 @@ import { ALL_SUBJECTS, subjectIcon } from "@/lib/ent";
 import {
   BookOpen,
   CheckCircle2,
-  ChevronDown,
   Crown,
   Lock,
   PlayCircle,
@@ -17,28 +16,15 @@ export default function LearnPage() {
   const [subject, setSubject] = useState(ALL_SUBJECTS[0].id);
   const [data, setData] = useState<LearnOverview | null>(null);
   const [loading, setLoading] = useState(true);
-  // Какие главы (тарау) сейчас раскрыты
-  const [openIds, setOpenIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     setLoading(true);
     api
       .learnOverview(subject)
-      .then((d) => {
-        setData(d);
-        // По умолчанию раскрываем первую главу
-        setOpenIds(new Set(d.tarautar[0] ? [d.tarautar[0].id] : []));
-      })
+      .then(setData)
       .catch(() => setData(null))
       .finally(() => setLoading(false));
   }, [subject]);
-
-  const toggle = (id: string) =>
-    setOpenIds((prev) => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
 
   const hasAccess = data?.hasAccess ?? false;
   const empty = !loading && (!data || data.tarautar.length === 0);
@@ -92,18 +78,14 @@ export default function LearnPage() {
         </div>
       )}
 
-      {/* Список тарау и тем */}
+      {/* Список тарау и тем (главы всегда открыты) */}
       <div className="mt-8 space-y-4">
         {data?.tarautar.map((tar, ti) => {
-          const isOpen = openIds.has(tar.id);
           const doneCount = tar.topics.filter((t) => t.state === "completed").length;
           return (
           <div key={tar.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
-            {/* Заголовок главы — клик раскрывает/сворачивает темы */}
-            <button
-              onClick={() => toggle(tar.id)}
-              className="flex w-full items-center gap-3 p-4 text-left transition hover:bg-surface"
-            >
+            {/* Заголовок главы */}
+            <div className="flex items-center gap-3 p-4">
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand/10 text-sm font-bold text-brand">
                 {ti + 1}
               </span>
@@ -113,14 +95,8 @@ export default function LearnPage() {
                   {tar.topics.length} тақырып · {doneCount} аяқталды
                 </span>
               </span>
-              <ChevronDown
-                className={`h-5 w-5 shrink-0 text-slate-400 transition-transform ${
-                  isOpen ? "rotate-180" : ""
-                }`}
-              />
-            </button>
+            </div>
 
-            {isOpen && (
             <div className="space-y-3 border-t border-slate-100 p-4">
               {tar.topics.length === 0 && (
                 <p className="text-sm text-slate-400">Бұл тарауда әзірге тақырып жоқ.</p>
@@ -191,7 +167,6 @@ export default function LearnPage() {
                 );
               })}
             </div>
-            )}
           </div>
           );
         })}
