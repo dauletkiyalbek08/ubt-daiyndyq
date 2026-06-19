@@ -91,23 +91,18 @@ export default function TopicPage() {
           <Presentation className="h-5 w-5 text-brand" /> Презентация
         </h2>
         {topic.presentationUrl ? (
-          <div className="mt-3">
-            <div className="overflow-hidden rounded-2xl border border-slate-200">
-              <iframe
-                src={topic.presentationUrl}
-                className="h-[70vh] w-full"
-                title="Презентация"
-              />
-            </div>
-            <a
-              href={topic.presentationUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-3 inline-flex items-center gap-1 text-sm text-brand hover:underline"
-            >
-              <Download className="h-4 w-4" /> Жүктеп алу (PDF)
-            </a>
-          </div>
+          <a
+            href={topic.presentationUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-3 flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 transition hover:border-brand hover:shadow-card"
+          >
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand/10 text-brand">
+              <Presentation className="h-5 w-5" />
+            </span>
+            <span className="min-w-0 flex-1 font-medium text-slate-800">Презентацияны ашу (PDF)</span>
+            <Download className="h-4 w-4 shrink-0 text-slate-400" />
+          </a>
         ) : (
           <p className="mt-2 text-sm text-slate-400">Презентация әзірге қосылмаған.</p>
         )}
