@@ -51,6 +51,27 @@ export class AuthService implements OnModuleInit {
       await this.users.save(admin);
       // eslint-disable-next-line no-console
       console.log(`✓ Админ құрылды: логин=${email}`);
+    } else if (this.config.get<string>("ADMIN_RESET") === "true") {
+      // Безопасный сброс логина/пароля админа (по запросу через env ADMIN_RESET=true).
+      // Ничего не удаляет: берёт существующего админа и переустанавливает доступ.
+      // После входа переменную ADMIN_RESET нужно убрать.
+      const email = this.config.get<string>("ADMIN_EMAIL") ?? "admin";
+      const password = this.config.get<string>("ADMIN_PASSWORD") ?? "admin";
+      const admin =
+        (await this.users.findOne({ where: { email } })) ??
+        (await this.users.findOne({
+          where: { role: "admin" },
+          order: { createdAt: "ASC" },
+        }));
+      if (admin) {
+        admin.email = email;
+        admin.passwordHash = await bcrypt.hash(password, 10);
+        admin.role = "admin";
+        admin.provider = "local";
+        await this.users.save(admin);
+        // eslint-disable-next-line no-console
+        console.log(`✓ Әкімші доступы қайта орнатылды: логин=${email}`);
+      }
     }
   }
 
