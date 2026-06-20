@@ -46,6 +46,7 @@ export class NotificationsService {
       month: "long",
       hour: "2-digit",
       minute: "2-digit",
+      timeZone: "Asia/Almaty", // время по Казахстану (сервер работает в UTC)
     });
     const message = `«${title}» — ${dateStr}. Кіру сілтемесі «Сабақтар → Вебинарлар» бөлімінде.`;
     const rows = recipients.map((u) =>

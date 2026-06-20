@@ -189,6 +189,7 @@ export default function LearnPage() {
                         month: "long",
                         hour: "2-digit",
                         minute: "2-digit",
+                        timeZone: "Asia/Almaty",
                       })}
                     </span>
                     {w.speaker && <span>· {w.speaker}</span>}
