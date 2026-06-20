@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { api, type NotifItem } from "@/lib/api";
-import { Bell, PartyPopper, Hourglass, Ban, FileText, type LucideIcon } from "lucide-react";
+import { Bell, PartyPopper, Hourglass, Ban, FileText, Video, type LucideIcon } from "lucide-react";
 
 const ICONS: Record<string, LucideIcon> = {
   payment: PartyPopper,
   sub_ending: Hourglass,
   sub_ended: Ban,
   new_test: FileText,
+  webinar: Video,
 };
 
 export function NotificationsBell() {
@@ -72,22 +73,35 @@ export function NotificationsBell() {
               ) : (
                 items.map((n) => {
                   const NIcon = ICONS[n.type] ?? Bell;
-                  return (
-                  <div
-                    key={n.id}
-                    className={`flex gap-3 border-b border-slate-50 px-4 py-3 ${
-                      n.read ? "" : "bg-brand/5"
-                    }`}
-                  >
-                    <NIcon className="mt-0.5 h-5 w-5 shrink-0 text-brand" />
-                    <div>
-                      <p className="text-sm font-medium text-slate-900">{n.title}</p>
-                      <p className="text-xs text-slate-500">{n.message}</p>
-                      <p className="mt-1 text-[10px] text-slate-400">
-                        {new Date(n.createdAt).toLocaleDateString("ru-RU")}
-                      </p>
+                  const cls = `flex gap-3 border-b border-slate-50 px-4 py-3 ${
+                    n.read ? "" : "bg-brand/5"
+                  }`;
+                  const inner = (
+                    <>
+                      <NIcon className="mt-0.5 h-5 w-5 shrink-0 text-brand" />
+                      <div>
+                        <p className="text-sm font-medium text-slate-900">{n.title}</p>
+                        <p className="text-xs text-slate-500">{n.message}</p>
+                        <p className="mt-1 text-[10px] text-slate-400">
+                          {new Date(n.createdAt).toLocaleDateString("ru-RU")}
+                        </p>
+                      </div>
+                    </>
+                  );
+                  // Если есть ссылка — уведомление кликабельно (переход)
+                  return n.link ? (
+                    <Link
+                      key={n.id}
+                      href={n.link}
+                      onClick={() => setOpen(false)}
+                      className={`${cls} hover:bg-slate-50`}
+                    >
+                      {inner}
+                    </Link>
+                  ) : (
+                    <div key={n.id} className={cls}>
+                      {inner}
                     </div>
-                  </div>
                   );
                 })
               )}

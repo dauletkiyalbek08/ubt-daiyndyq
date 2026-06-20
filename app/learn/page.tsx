@@ -26,6 +26,10 @@ export default function LearnPage() {
 
   useEffect(() => {
     api.listWebinars().then(setWebinars).catch(() => setWebinars(null));
+    // Открыть вкладку вебинаров по ссылке /learn?tab=webinars (из уведомления)
+    if (new URLSearchParams(window.location.search).get("tab") === "webinars") {
+      setTab("webinars");
+    }
   }, []);
 
   const empty = !loading && (!data || data.tarautar.length === 0);

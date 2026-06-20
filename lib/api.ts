@@ -228,6 +228,7 @@ export type NotifItem = {
   type: string;
   title: string;
   message: string;
+  link?: string | null; // внутренний путь для перехода по клику
   read: boolean;
   createdAt: string;
 };

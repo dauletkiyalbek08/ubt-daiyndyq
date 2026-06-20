@@ -4,6 +4,7 @@ import { Repository } from "typeorm";
 import { Webinar } from "../entities/webinar.entity";
 import { User } from "../entities/user.entity";
 import { hasPremiumAccess } from "../auth/access";
+import { NotificationsService } from "../notifications/notifications.service";
 
 export interface WebinarDto {
   title: string;
@@ -19,7 +20,8 @@ export class WebinarsService {
     @InjectRepository(Webinar)
     private readonly webinars: Repository<Webinar>,
     @InjectRepository(User)
-    private readonly users: Repository<User>
+    private readonly users: Repository<User>,
+    private readonly notifs: NotificationsService
   ) {}
 
   // Список вебинаров. Ссылку отдаём только тем, у кого есть доступ (Premium/админ).
@@ -43,8 +45,8 @@ export class WebinarsService {
     return { hasAccess, webinars };
   }
 
-  create(dto: WebinarDto) {
-    return this.webinars.save(
+  async create(dto: WebinarDto) {
+    const saved = await this.webinars.save(
       this.webinars.create({
         title: dto.title,
         speaker: dto.speaker ?? null,
@@ -53,6 +55,9 @@ export class WebinarsService {
         link: dto.link,
       })
     );
+    // Уведомляем учеников с доступом о новом вебинаре
+    await this.notifs.notifyNewWebinar(saved.title, saved.startsAt);
+    return saved;
   }
 
   async update(id: string, dto: Partial<WebinarDto>) {

@@ -1,16 +1,18 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { api, type NotifItem } from "@/lib/api";
-import { Bell, BellOff, PartyPopper, Hourglass, Ban, FileText, type LucideIcon } from "lucide-react";
+import { Bell, BellOff, PartyPopper, Hourglass, Ban, FileText, Video, type LucideIcon } from "lucide-react";
 
 const ICONS: Record<string, LucideIcon> = {
   payment: PartyPopper,
   sub_ending: Hourglass,
   sub_ended: Ban,
   new_test: FileText,
+  webinar: Video,
 };
 
 export default function NotificationsPage() {
@@ -54,20 +56,29 @@ export default function NotificationsPage() {
         ) : (
           items.map((n) => {
             const NIcon = ICONS[n.type] ?? Bell;
-            return (
-            <div key={n.id} className="card flex items-start gap-4">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand">
-                <NIcon className="h-5 w-5" />
+            const inner = (
+              <>
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand">
+                  <NIcon className="h-5 w-5" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-slate-900">{n.title}</h3>
+                  <p className="mt-0.5 text-sm text-slate-600">{n.message}</p>
+                  <p className="mt-1 text-xs text-slate-400">
+                    {new Date(n.createdAt).toLocaleString("ru-RU")}
+                  </p>
+                </div>
+                {!n.read && <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-brand" />}
+              </>
+            );
+            return n.link ? (
+              <Link key={n.id} href={n.link} className="card flex items-start gap-4 transition hover:border-brand">
+                {inner}
+              </Link>
+            ) : (
+              <div key={n.id} className="card flex items-start gap-4">
+                {inner}
               </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-slate-900">{n.title}</h3>
-                <p className="mt-0.5 text-sm text-slate-600">{n.message}</p>
-                <p className="mt-1 text-xs text-slate-400">
-                  {new Date(n.createdAt).toLocaleString("ru-RU")}
-                </p>
-              </div>
-              {!n.read && <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-brand" />}
-            </div>
             );
           })
         )}

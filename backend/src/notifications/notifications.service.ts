@@ -9,6 +9,7 @@ export type NotifItem = {
   type: string;
   title: string;
   message: string;
+  link?: string | null;
   read: boolean;
   createdAt: string;
 };
@@ -22,9 +23,41 @@ export class NotificationsService {
     private readonly users: Repository<User>
   ) {}
 
-  async create(userId: string, type: string, title: string, message: string) {
-    const n = this.notifs.create({ userId, type, title, message });
+  async create(
+    userId: string,
+    type: string,
+    title: string,
+    message: string,
+    link: string | null = null
+  ) {
+    const n = this.notifs.create({ userId, type, title, message, link });
     return this.notifs.save(n);
+  }
+
+  // Новый вебинар — рассылаем пользователям с доступом (Premium/Maximum)
+  async notifyNewWebinar(title: string, startsAt: Date) {
+    const recipients = await this.users.find({
+      where: [{ plan: "premium" }, { plan: "max" }],
+      select: { id: true },
+    });
+    if (recipients.length === 0) return;
+    const dateStr = new Date(startsAt).toLocaleString("ru-RU", {
+      day: "2-digit",
+      month: "long",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    const message = `«${title}» — ${dateStr}. Кіру сілтемесі «Сабақтар → Вебинарлар» бөлімінде.`;
+    const rows = recipients.map((u) =>
+      this.notifs.create({
+        userId: u.id,
+        type: "webinar",
+        title: "Жаңа вебинар 🎥",
+        message,
+        link: "/learn?tab=webinars",
+      })
+    );
+    await this.notifs.save(rows);
   }
 
   // Уведомление об активации тарифа (вместо/после оплаты)
@@ -65,6 +98,7 @@ export class NotificationsService {
       type: n.type,
       title: n.title,
       message: n.message,
+      link: n.link,
       read: n.read,
       createdAt: n.createdAt.toISOString(),
     }));
