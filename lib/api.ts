@@ -253,11 +253,39 @@ export type LearnTopic = {
 export type LearnTarau = {
   id: string;
   title: string;
+  imageUrl: string | null;
+  description: string | null;
   order: number;
   topics: LearnTopic[];
 };
 
 export type LearnOverview = { hasAccess: boolean; tarautar: LearnTarau[] };
+
+// Один курс (тарау) с темами
+export type CourseDetail = {
+  hasAccess: boolean;
+  course: {
+    id: string;
+    title: string;
+    imageUrl: string | null;
+    description: string | null;
+    subjectId: string;
+  };
+  topics: LearnTopic[];
+};
+
+// ---- Вебинары ----
+export type Webinar = {
+  id: string;
+  title: string;
+  speaker: string | null;
+  description: string | null;
+  startsAt: string;
+  link: string | null; // null, если нет доступа (не Premium)
+  isPast: boolean;
+};
+
+export type WebinarList = { hasAccess: boolean; webinars: Webinar[] };
 
 // Полная тема (детали для ученика и для админки)
 export type ApiTopic = {
@@ -276,6 +304,8 @@ export type ApiTarau = {
   id: string;
   subjectId: string;
   title: string;
+  imageUrl: string | null;
+  description: string | null;
   order: number;
   createdAt?: string;
   topics: ApiTopic[];
@@ -490,6 +520,9 @@ export const api = {
   learnOverview: (subject: string) =>
     request<LearnOverview>(`/learn?subject=${encodeURIComponent(subject)}`),
 
+  // Один курс (тарау) с темами
+  learnCourse: (id: string) => request<CourseDetail>(`/learn/course/${id}`),
+
   // Детали темы (презентация + книги + тест)
   learnTopic: (id: string) => request<TopicDetail>(`/learn/topics/${id}`),
 
@@ -497,11 +530,18 @@ export const api = {
   learnManage: (subject: string) =>
     request<ApiTarau[]>(`/learn/manage?subject=${encodeURIComponent(subject)}`),
 
-  // Админ: тарау (главы)
-  createTarau: (body: { subjectId: string; title: string; order?: number }) =>
-    request<ApiTarau>("/learn/tarau", { method: "POST", body: JSON.stringify(body) }),
-  updateTarau: (id: string, body: { title?: string; order?: number }) =>
-    request<ApiTarau>(`/learn/tarau/${id}`, { method: "PATCH", body: JSON.stringify(body) }),
+  // Админ: тарау (главы/курсы)
+  createTarau: (body: {
+    subjectId: string;
+    title: string;
+    order?: number;
+    imageUrl?: string | null;
+    description?: string | null;
+  }) => request<ApiTarau>("/learn/tarau", { method: "POST", body: JSON.stringify(body) }),
+  updateTarau: (
+    id: string,
+    body: { title?: string; order?: number; imageUrl?: string | null; description?: string | null }
+  ) => request<ApiTarau>(`/learn/tarau/${id}`, { method: "PATCH", body: JSON.stringify(body) }),
   deleteTarau: (id: string) =>
     request<{ success: boolean }>(`/learn/tarau/${id}`, { method: "DELETE" }),
 
@@ -528,6 +568,28 @@ export const api = {
   ) => request<ApiTopic>(`/learn/topics/${id}`, { method: "PATCH", body: JSON.stringify(body) }),
   deleteTopic: (id: string) =>
     request<{ success: boolean }>(`/learn/topics/${id}`, { method: "DELETE" }),
+
+  // ---- Вебинары ----
+  listWebinars: () => request<WebinarList>("/webinars"),
+  createWebinar: (body: {
+    title: string;
+    speaker?: string | null;
+    description?: string | null;
+    startsAt: string;
+    link: string;
+  }) => request<Webinar>("/webinars", { method: "POST", body: JSON.stringify(body) }),
+  updateWebinar: (
+    id: string,
+    body: {
+      title?: string;
+      speaker?: string | null;
+      description?: string | null;
+      startsAt?: string;
+      link?: string;
+    }
+  ) => request<Webinar>(`/webinars/${id}`, { method: "PATCH", body: JSON.stringify(body) }),
+  deleteWebinar: (id: string) =>
+    request<{ success: boolean }>(`/webinars/${id}`, { method: "DELETE" }),
 };
 
 // Общая загрузка файла (картинка или PDF) через multipart. Возвращает { url }.

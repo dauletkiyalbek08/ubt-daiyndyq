@@ -15,6 +15,8 @@ export interface TarauDto {
   subjectId: string;
   title: string;
   order?: number;
+  imageUrl?: string | null;
+  description?: string | null;
 }
 
 export interface TopicDto {
@@ -46,6 +48,8 @@ export class LearnService {
       this.tarautar.create({
         subjectId: dto.subjectId,
         title: dto.title,
+        imageUrl: dto.imageUrl ?? null,
+        description: dto.description ?? null,
         order: dto.order ?? 0,
       })
     );
@@ -58,6 +62,8 @@ export class LearnService {
       title: dto.title ?? t.title,
       subjectId: dto.subjectId ?? t.subjectId,
       order: dto.order ?? t.order,
+      imageUrl: dto.imageUrl !== undefined ? dto.imageUrl : t.imageUrl,
+      description: dto.description !== undefined ? dto.description : t.description,
     });
     return this.tarautar.save(t);
   }
@@ -157,6 +163,8 @@ export class LearnService {
     const out = tarautar.map((tar) => ({
       id: tar.id,
       title: tar.title,
+      imageUrl: tar.imageUrl,
+      description: tar.description,
       order: tar.order,
       topics: tar.topics.map((tp) => {
         const bestPercent = tp.testId ? best.get(tp.testId) ?? null : null;
@@ -184,6 +192,25 @@ export class LearnService {
       }),
     }));
     return { hasAccess, tarautar: out };
+  }
+
+  // ===== УЧЕНИК: один курс (тарау) с темами и их состоянием =====
+  async courseDetail(tarauId: string, userId?: string) {
+    const tarau = await this.tarautar.findOne({ where: { id: tarauId } });
+    if (!tarau) throw new NotFoundException("Курс табылмады");
+    const ov = await this.overview(tarau.subjectId, userId);
+    const course = ov.tarautar.find((t) => t.id === tarauId);
+    return {
+      hasAccess: ov.hasAccess,
+      course: {
+        id: tarau.id,
+        title: tarau.title,
+        imageUrl: tarau.imageUrl,
+        description: tarau.description,
+        subjectId: tarau.subjectId,
+      },
+      topics: course?.topics ?? [],
+    };
   }
 
   // ===== УЧЕНИК: детали темы (презентация + книги + тест) =====

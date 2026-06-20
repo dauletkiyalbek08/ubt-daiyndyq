@@ -21,6 +21,14 @@ export class Tarau {
   @Column()
   title: string;
 
+  // Обложка курса (картинка) — ссылка на загруженный файл
+  @Column({ type: "varchar", nullable: true })
+  imageUrl: string | null;
+
+  // Короткое описание курса (необязательно)
+  @Column({ type: "varchar", nullable: true })
+  description: string | null;
+
   // Порядок главы внутри предмета (1, 2, 3 …)
   @Column({ type: "int", default: 0 })
   order: number;

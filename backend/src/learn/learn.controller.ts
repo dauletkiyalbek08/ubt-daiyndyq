@@ -41,6 +41,16 @@ export class LearnController {
     return this.learn.loadForAdmin(subjectId);
   }
 
+  // Один курс (тарау) с темами и их состоянием
+  @UseGuards(OptionalJwtAuthGuard)
+  @Get("course/:id")
+  course(
+    @CurrentUser() user: { id: string } | null,
+    @Param("id") id: string
+  ) {
+    return this.learn.courseDetail(id, user?.id);
+  }
+
   // Детали темы (презентация + книги + тест). Gated: Premium + разблокировано.
   @UseGuards(OptionalJwtAuthGuard)
   @Get("topics/:id")

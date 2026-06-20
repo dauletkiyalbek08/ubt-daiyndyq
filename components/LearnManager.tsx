@@ -25,6 +25,9 @@ export function LearnManager() {
   const [tarautar, setTarautar] = useState<ApiTarau[]>([]);
   const [tests, setTests] = useState<ApiTest[]>([]);
   const [newTarau, setNewTarau] = useState("");
+  const [newTarauDesc, setNewTarauDesc] = useState("");
+  const [newTarauImage, setNewTarauImage] = useState<string | null>(null);
+  const [uploadingCover, setUploadingCover] = useState(false);
   // Какую тему сейчас редактируем/создаём (tarauId + опц. сама тема)
   const [editing, setEditing] = useState<{ tarauId: string; topic?: ApiTopic } | null>(null);
 
@@ -42,8 +45,34 @@ export function LearnManager() {
 
   async function addTarau() {
     if (!newTarau.trim()) return;
-    await api.createTarau({ subjectId: subject, title: newTarau.trim(), order: tarautar.length });
+    await api.createTarau({
+      subjectId: subject,
+      title: newTarau.trim(),
+      description: newTarauDesc.trim() || null,
+      imageUrl: newTarauImage,
+      order: tarautar.length,
+    });
     setNewTarau("");
+    setNewTarauDesc("");
+    setNewTarauImage(null);
+    refresh();
+  }
+
+  // Загрузка обложки для нового курса (до создания)
+  async function uploadNewCover(file: File) {
+    setUploadingCover(true);
+    try {
+      const { url } = await api.uploadImage(file);
+      setNewTarauImage(url);
+    } finally {
+      setUploadingCover(false);
+    }
+  }
+
+  // Поменять обложку существующего курса
+  async function setCover(id: string, file: File) {
+    const { url } = await api.uploadImage(file);
+    await api.updateTarau(id, { imageUrl: url });
     refresh();
   }
 
@@ -75,21 +104,49 @@ export function LearnManager() {
         </select>
       </div>
 
-      {/* Добавить тарау */}
-      <div className="card flex flex-wrap items-end gap-3">
-        <div className="flex-1 min-w-[200px]">
-          <label className="mb-1 block text-sm font-medium text-slate-600">Жаңа тарау (глава)</label>
+      {/* Добавить курс (тарау) */}
+      <div className="card space-y-3">
+        <p className="font-semibold text-slate-800">Жаңа курс (тарау)</p>
+        <div className="grid gap-3 sm:grid-cols-2">
           <input
             value={newTarau}
             onChange={(e) => setNewTarau(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && addTarau()}
-            placeholder="Мысалы: Интегралдар"
+            placeholder="Атауы: Ботаника"
+            className="input-field"
+          />
+          <input
+            value={newTarauDesc}
+            onChange={(e) => setNewTarauDesc(e.target.value)}
+            placeholder="Қысқаша сипаттама (міндетті емес)"
             className="input-field"
           />
         </div>
-        <button onClick={addTarau} className="btn-primary inline-flex items-center gap-1">
-          <Plus className="h-4 w-4" /> Тарау қосу
-        </button>
+        <div className="flex flex-wrap items-center gap-3">
+          {newTarauImage ? (
+            <span className="inline-flex items-center gap-2 text-sm text-slate-600">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={newTarauImage} alt="" className="h-10 w-16 rounded object-cover" />
+              Мұқаба дайын
+              <button onClick={() => setNewTarauImage(null)} className="text-rose-600 hover:underline">
+                алып тастау
+              </button>
+            </span>
+          ) : (
+            <label className="btn-secondary inline-flex cursor-pointer items-center gap-1 text-sm">
+              Мұқаба (сурет)
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => e.target.files?.[0] && uploadNewCover(e.target.files[0])}
+              />
+            </label>
+          )}
+          {uploadingCover && <span className="text-sm text-brand">Жүктелуде...</span>}
+          <button onClick={addTarau} className="btn-primary ml-auto inline-flex items-center gap-1">
+            <Plus className="h-4 w-4" /> Курс қосу
+          </button>
+        </div>
       </div>
 
       {/* Список тарау */}
@@ -99,16 +156,33 @@ export function LearnManager() {
 
       {tarautar.map((tar) => (
         <div key={tar.id} className="card">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-3">
             <h3 className="flex items-center gap-2 text-lg font-bold text-slate-900">
-              <BookOpen className="h-5 w-5 text-brand" /> {tar.title}
+              {tar.imageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={tar.imageUrl} alt="" className="h-10 w-16 shrink-0 rounded object-cover" />
+              ) : (
+                <BookOpen className="h-5 w-5 text-brand" />
+              )}
+              {tar.title}
             </h3>
-            <button
-              onClick={() => delTarau(tar.id)}
-              className="text-sm font-medium text-rose-600 hover:underline"
-            >
-              Тарауды жою
-            </button>
+            <div className="flex shrink-0 items-center gap-3">
+              <label className="cursor-pointer text-sm font-medium text-brand hover:underline">
+                Мұқаба
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => e.target.files?.[0] && setCover(tar.id, e.target.files[0])}
+                />
+              </label>
+              <button
+                onClick={() => delTarau(tar.id)}
+                className="text-sm font-medium text-rose-600 hover:underline"
+              >
+                Жою
+              </button>
+            </div>
           </div>
 
           {/* Темы внутри тарау */}

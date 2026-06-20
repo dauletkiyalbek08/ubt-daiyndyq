@@ -15,9 +15,10 @@ import { subjects } from "@/lib/mock-data";
 import { CreateTestForm } from "@/components/CreateTestForm";
 import { PlanEditor } from "@/components/PlanEditor";
 import { LearnManager } from "@/components/LearnManager";
+import { WebinarsManager } from "@/components/WebinarsManager";
 import { Wallet, Star, Users, FileText, Clock, Trash2 } from "lucide-react";
 
-type Tab = "stats" | "users" | "tests" | "learn" | "plans";
+type Tab = "stats" | "users" | "tests" | "learn" | "webinars" | "plans";
 
 type AdminStats = {
   totalUsers: number;
@@ -139,6 +140,7 @@ export default function AdminPage() {
     { id: "users", label: `Пайдаланушылар (${users.length})` },
     { id: "tests", label: `Тесттер (${tests.length})` },
     { id: "learn", label: "Оқу (тарау/тақырып)" },
+    { id: "webinars", label: "Вебинарлар" },
     { id: "plans", label: "Тарифтер" },
   ];
 
@@ -426,6 +428,9 @@ export default function AdminPage() {
 
       {/* Обучение: тарау и темы */}
       {tab === "learn" && <LearnManager />}
+
+      {/* Вебинары */}
+      {tab === "webinars" && <WebinarsManager />}
 
       {/* Тарифы */}
       {tab === "plans" && (
