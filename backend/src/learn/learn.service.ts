@@ -159,8 +159,11 @@ export class LearnService {
       ? await this.bestPercentByTest(userId)
       : new Map<string, number>();
 
-    let chainOpen = true; // открыта ли ещё цепочка к текущей теме
-    const out = tarautar.map((tar) => ({
+    // Каждый курс (тарау) независим: цепочка тем стартует заново внутри курса,
+    // поэтому первую тему любого курса можно начать сразу.
+    const out = tarautar.map((tar) => {
+      let chainOpen = true; // внутри курса темы открываются по очереди
+      return {
       id: tar.id,
       title: tar.title,
       imageUrl: tar.imageUrl,
@@ -190,7 +193,8 @@ export class LearnService {
           state,
         };
       }),
-    }));
+      };
+    });
     return { hasAccess, tarautar: out };
   }
 
